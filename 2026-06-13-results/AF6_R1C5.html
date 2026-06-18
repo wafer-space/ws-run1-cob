@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BondView — AF6 / R1C5</title>
+<style>
+:root {
+  --bg-app:    #15171c;
+  --bg-panel:  #1b1e25;
+  --bg-sunken: #11141a;
+  --tx-primary: #e7eaf0;
+  --tx-second:  #c4c8d0;
+  --tx-muted:   #8a909c;
+  --tx-faint:   #5e6470;
+  --line:       rgba(255,255,255,0.08);
+  --line-emph:  rgba(255,255,255,0.18);
+  --pass-fg:   #3ad17a;
+  --pass-bg:   #143524;
+  --fail-fg:   #e2554f;
+  --fail-bg:   #5a2220;
+  --warn-fg:   #f0a830;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-app);color:var(--tx-second);font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;font-size:13px;padding:24px;}
+.page{max-width:760px;margin:0 auto;}
+h1{color:var(--tx-primary);font-size:18px;font-weight:600;margin-bottom:4px;}
+.sub{color:var(--tx-muted);font-size:12px;margin-bottom:20px;font-family:'SF Mono','Menlo',monospace;}
+.outcome-row{display:flex;align-items:center;gap:10px;font-size:13px;font-family:'SF Mono','Menlo',monospace;color:var(--tx-muted);}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:0.5px;}
+.badge-PASS{color:var(--pass-fg);background:var(--pass-bg);}
+.badge-FAIL{color:var(--fail-fg);background:var(--fail-bg);}
+.count-pass{color:var(--pass-fg);font-weight:600;}
+.count-fail{color:var(--fail-fg);font-weight:600;}
+.layout{display:flex;flex-direction:column;gap:24px;margin-top:16px;}
+.die-col svg{display:block;width:100%;height:auto;}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.legend-item{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--tx-muted);}
+.legend-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:'SF Mono','Menlo',monospace;}
+thead th{background:var(--bg-sunken);color:var(--tx-muted);font-size:10px;letter-spacing:0.5px;text-transform:uppercase;padding:5px 7px;text-align:left;border-bottom:1px solid var(--line-emph);}
+tbody tr{border-bottom:1px solid var(--line);}
+tbody tr:hover{background:rgba(255,255,255,0.03);}
+td{padding:4px 7px;color:var(--tx-second);}
+.c-good{color:#4CAF50;font-weight:600;}
+.c-bad{color:#e2554f;font-weight:600;}
+.c-open{color:#c06010;font-weight:600;}
+.c-neighbor{color:#9a8800;font-weight:600;}
+.c-flag{color:var(--warn-fg);font-size:10px;}
+.c-muted{color:var(--tx-faint);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#3a3e47;border-radius:3px;}
+@media print {
+  body{background:#fff;color:#000;padding:12px;}
+  .page{max-width:100%;}
+  h1{color:#000;}
+  .sub{color:#444;}
+  .score{color:#000;}
+  .die-body{fill:#fff !important;stroke:#aaa !important;}
+  .die-badge-rect{fill:#fff !important;stroke:#aaa !important;}
+  .die-badge-text{fill:#000 !important;}
+  thead th{background:#eee;color:#000;}
+  tbody tr:hover{background:none;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>AF6 / R1C5</h1>
+<div class="sub">1x1 Mezzanine70 &nbsp;·&nbsp; 2026-06-13 20:20:03</div>
+<div class="outcome-row">
+  <span class="badge badge-FAIL">FAIL</span>
+  <span class="count-pass">62 pass</span> · <span class="count-fail">2 fail</span> · 64 tested
+  
+</div>
+<div class="layout">
+  <div class="die-col" style="max-width:520px;">
+    <svg viewBox="0 0 410.3 470.0" xmlns="http://www.w3.org/2000/svg">
+<rect class="die-body" x="36.0" y="36.0" width="338.3" height="398.0" rx="6" fill="#1a1a2e" stroke="#555" stroke-width="1.5"/>
+<circle cx="365.3" cy="45.0" r="4.0" fill="#ffffff"/>
+<rect class="die-badge-rect" x="158.2" y="213.0" width="44" height="44" rx="6" fill="#143524" stroke="#3ad17a" stroke-width="1.5"/>
+<text class="die-badge-text" x="180.2" y="227.0" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#3ad17a">PASS</text>
+<text class="die-badge-text" x="180.2" y="247.0" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#3ad17a">62</text>
+<rect class="die-badge-rect" x="208.2" y="213.0" width="44" height="44" rx="6" fill="#5a2220" stroke="#e2554f" stroke-width="1.5"/>
+<text class="die-badge-text" x="230.2" y="227.0" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#e2554f">FAIL</text>
+<text class="die-badge-text" x="230.2" y="247.0" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#e2554f">2</text>
+<g>
+  <rect x="356.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="365.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">0</text>
+  <title>DP 0 [IO]&#10;Result: GOOD&#10;Sense: 0.587V  Prev: 0.000V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="336.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="345.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">1</text>
+  <title>DP 1 [IO]&#10;Result: GOOD&#10;Sense: 0.586V  Prev: 0.579V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="316.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="325.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">2</text>
+  <title>DP 2 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.581V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="296.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="305.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">3</text>
+  <title>DP 3 [IO]&#10;Result: GOOD&#10;Sense: 0.588V  Prev: 0.571V  Next: 0.562V</title>
+</g>
+<g>
+  <rect x="276.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="285.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">4</text>
+  <title>DP 4 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.575V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="256.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="265.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">5</text>
+  <title>DP 5 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.577V  Next: 0.565V</title>
+</g>
+<g>
+  <rect x="236.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="245.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">6</text>
+  <title>DP 6 [IO]&#10;Result: GOOD&#10;Sense: 0.579V  Prev: 0.576V  Next: 0.566V</title>
+</g>
+<g>
+  <rect x="216.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="225.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">7</text>
+  <title>DP 7 [IO]&#10;Result: GOOD&#10;Sense: 0.585V  Prev: 0.576V  Next: 0.565V</title>
+</g>
+<g>
+  <rect x="196.1" y="14.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="205.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">8</text>
+  <title>DP 8 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="176.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="185.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">9</text>
+  <title>DP 9 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.576V  Next: 0.562V</title>
+</g>
+<g>
+  <rect x="156.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="165.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">10</text>
+  <title>DP 10 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.578V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="136.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="145.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">11</text>
+  <title>DP 11 [IO]&#10;Result: GOOD&#10;Sense: 0.584V  Prev: 0.579V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="116.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="125.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">12</text>
+  <title>DP 12 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.565V</title>
+</g>
+<g>
+  <rect x="96.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="105.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">13</text>
+  <title>DP 13 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.574V  Next: 0.564V</title>
+</g>
+<g>
+  <rect x="76.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="85.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">14</text>
+  <title>DP 14 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.576V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="56.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="65.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">15</text>
+  <title>DP 15 [IO]&#10;Result: GOOD&#10;Sense: 0.584V  Prev: 0.571V  Next: 0.558V</title>
+</g>
+<g>
+  <rect x="36.1" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="45.1" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">16</text>
+  <title>DP 16 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.567V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="36.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="47.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">17</text>
+  <title>DP 17 [VDDIO]&#10;Result: GOOD&#10;Sense: 0.345V  Prev: 0.509V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="56.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="67.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">18</text>
+  <title>DP 18 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="14.0" y="76.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="87.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">19</text>
+  <title>DP 19 [IO]&#10;Result: GOOD&#10;Sense: 0.582V  Prev: 0.000V  Next: 0.569V</title>
+</g>
+<g>
+  <rect x="14.0" y="96.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="107.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">20</text>
+  <title>DP 20 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.580V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="14.0" y="116.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="127.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">21</text>
+  <title>DP 21 [IO]&#10;Result: GOOD&#10;Sense: 0.586V  Prev: 0.579V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="14.0" y="136.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="147.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">22</text>
+  <title>DP 22 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="14.0" y="156.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="167.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">23</text>
+  <title>DP 23 [IO]&#10;Result: GOOD&#10;Sense: 0.582V  Prev: 0.578V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="14.0" y="176.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="187.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">24</text>
+  <title>DP 24 [IO]&#10;Result: GOOD&#10;Sense: 0.585V  Prev: 0.567V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="196.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="207.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">25</text>
+  <title>DP 25 [PWR_AUX]&#10;Result: GOOD&#10;Sense: 0.370V  Prev: 0.504V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="216.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="227.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">26</text>
+  <title>DP 26 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="14.0" y="236.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="247.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">27</text>
+  <title>DP 27 [IO]&#10;Result: GOOD&#10;Sense: 0.580V  Prev: 0.000V  Next: 0.414V</title>
+</g>
+<g>
+  <rect x="14.0" y="256.0" width="18" height="18" rx="2" fill="#e2554f" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="267.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">28</text>
+  <title>DP 28 [IO]&#10;Result: SHORT&#10;Sense: 0.051V  Prev: 0.270V  Next: 0.258V</title>
+</g>
+<g>
+  <rect x="14.0" y="276.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="287.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">29</text>
+  <title>DP 29 [IO]&#10;Result: GOOD&#10;Sense: 0.582V  Prev: 0.417V  Next: 0.579V</title>
+</g>
+<g>
+  <rect x="14.0" y="296.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="307.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">30</text>
+  <title>DP 30 [IO]&#10;Result: GOOD&#10;Sense: 0.587V  Prev: 0.579V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="14.0" y="316.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="327.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">31</text>
+  <title>DP 31 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.578V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="14.0" y="336.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="347.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">32</text>
+  <title>DP 32 [IO]&#10;Result: GOOD&#10;Sense: 0.586V  Prev: 0.571V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="356.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="367.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">33</text>
+  <title>DP 33 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="14.0" y="376.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="387.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">34</text>
+  <title>DP 34 [VDD_CORE]&#10;Result: GOOD&#10;Sense: 0.384V  Prev: 0.000V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="14.0" y="396.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="407.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">35</text>
+  <title>DP 35 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="14.0" y="416.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="23.0" y="427.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">36</text>
+  <title>DP 36 [VDDIO]&#10;Result: GOOD&#10;Sense: 0.392V  Prev: 0.000V  Next: 0.512V</title>
+</g>
+<g>
+  <rect x="36.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="45.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">37</text>
+  <title>DP 37 [IO]&#10;Result: GOOD&#10;Sense: 0.578V  Prev: 0.000V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="56.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="65.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">38</text>
+  <title>DP 38 [IO]&#10;Result: GOOD&#10;Sense: 0.582V  Prev: 0.577V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="76.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="85.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">39</text>
+  <title>DP 39 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.579V  Next: 0.564V</title>
+</g>
+<g>
+  <rect x="96.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="105.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">40</text>
+  <title>DP 40 [IO]&#10;Result: GOOD&#10;Sense: 0.585V  Prev: 0.579V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="116.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="125.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">41</text>
+  <title>DP 41 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.562V</title>
+</g>
+<g>
+  <rect x="136.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="145.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">42</text>
+  <title>DP 42 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.576V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="156.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="165.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">43</text>
+  <title>DP 43 [IO]&#10;Result: GOOD&#10;Sense: 0.581V  Prev: 0.578V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="176.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="185.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">44</text>
+  <title>DP 44 [IO]&#10;Result: GOOD&#10;Sense: 0.609V  Prev: 0.571V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="196.2" y="438.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="205.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">45</text>
+  <title>DP 45 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="216.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="225.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">46</text>
+  <title>DP 46 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.575V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="236.2" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="245.2" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">47</text>
+  <title>DP 47 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="256.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="265.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">48</text>
+  <title>DP 48 [IO]&#10;Result: GOOD&#10;Sense: 0.582V  Prev: 0.578V  Next: 0.565V</title>
+</g>
+<g>
+  <rect x="276.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="285.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">49</text>
+  <title>DP 49 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.576V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="296.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="305.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">50</text>
+  <title>DP 50 [IO]&#10;Result: GOOD&#10;Sense: 0.587V  Prev: 0.580V  Next: 0.564V</title>
+</g>
+<g>
+  <rect x="316.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="325.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">51</text>
+  <title>DP 51 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.577V  Next: 0.567V</title>
+</g>
+<g>
+  <rect x="336.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="345.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">52</text>
+  <title>DP 52 [IO]&#10;Result: GOOD&#10;Sense: 0.588V  Prev: 0.581V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="356.1" y="438.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="365.1" y="449.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">53</text>
+  <title>DP 53 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.574V  Next: 0.570V</title>
+</g>
+<g>
+  <rect x="378.3" y="416.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="427.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">54</text>
+  <title>DP 54 [IO]&#10;Result: GOOD&#10;Sense: 0.589V  Prev: 0.578V  Next: 0.566V</title>
+</g>
+<g>
+  <rect x="378.3" y="396.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="407.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">55</text>
+  <title>DP 55 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.571V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="378.3" y="376.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="387.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">56</text>
+  <title>DP 56 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="378.3" y="356.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="367.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">57</text>
+  <title>DP 57 [VDDIO]&#10;Result: GOOD&#10;Sense: 0.396V  Prev: 0.000V  Next: 0.513V</title>
+</g>
+<g>
+  <rect x="378.3" y="336.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="347.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">58</text>
+  <title>DP 58 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.000V  Next: 0.563V</title>
+</g>
+<g>
+  <rect x="378.3" y="316.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="327.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">59</text>
+  <title>DP 59 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.575V  Next: 0.562V</title>
+</g>
+<g>
+  <rect x="378.3" y="296.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="307.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">60</text>
+  <title>DP 60 [IO]&#10;Result: GOOD&#10;Sense: 0.585V  Prev: 0.577V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="378.3" y="276.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="287.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">61</text>
+  <title>DP 61 [IO]&#10;Result: GOOD&#10;Sense: 0.588V  Prev: 0.568V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="378.3" y="256.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="267.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">62</text>
+  <title>DP 62 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="378.3" y="236.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="247.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">63</text>
+  <title>DP 63 [PWR_AUX]&#10;Result: GOOD&#10;Sense: 0.395V  Prev: 0.000V  Next: 0.508V</title>
+</g>
+<g>
+  <rect x="378.3" y="216.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="227.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">64</text>
+  <title>DP 64 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.000V  Next: 0.556V</title>
+</g>
+<g>
+  <rect x="378.3" y="196.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="207.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">65</text>
+  <title>DP 65 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.566V</title>
+</g>
+<g>
+  <rect x="378.3" y="176.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="187.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">66</text>
+  <title>DP 66 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.579V  Next: 0.568V</title>
+</g>
+<g>
+  <rect x="378.3" y="156.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="167.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">67</text>
+  <title>DP 67 [IO]&#10;Result: GOOD&#10;Sense: 0.587V  Prev: 0.589V  Next: 0.415V</title>
+</g>
+<g>
+  <rect x="378.3" y="136.0" width="18" height="18" rx="2" fill="#e2554f" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="147.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">68</text>
+  <title>DP 68 [IO]&#10;Result: SHORT&#10;Sense: 0.032V  Prev: 0.267V  Next: 0.258V</title>
+</g>
+<g>
+  <rect x="378.3" y="116.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="127.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">69</text>
+  <title>DP 69 [IO]&#10;Result: GOOD&#10;Sense: 0.583V  Prev: 0.420V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="378.3" y="96.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="107.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">70</text>
+  <title>DP 70 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="378.3" y="76.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="87.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">71</text>
+  <title>DP 71 [VDD_CORE]&#10;Result: GOOD&#10;Sense: 0.396V  Prev: 0.000V  Next: 0.000V</title>
+</g>
+<g>
+  <rect x="378.3" y="56.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="67.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">72</text>
+  <title>DP 72 [GND]&#10;(untested)</title>
+</g>
+<g>
+  <rect x="378.3" y="36.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
+  <text x="387.3" y="47.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">73</text>
+  <title>DP 73 [VDDIO]&#10;Result: GOOD&#10;Sense: 0.397V  Prev: 0.000V  Next: 0.522V</title>
+</g>
+</svg>
+    <div class="legend"><div class="legend-item"><div class="legend-swatch" style="background:#4CAF50"></div><span>GOOD</span></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#e2554f"></div><span>SHORT TO GND</span></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#c06010"></div><span>OPEN</span></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#9a8800"></div><span>SHORT TO NEIGHBOR</span></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#616161"></div><span>GND / NC / Untested</span></div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>DP</th><th>Role</th><th>Result</th><th>Sense V</th><th>Prev V</th><th>Next V</th></tr></thead>
+      <tbody>
+<tr><td>0</td><td>IO</td><td class="c-good">GOOD</td><td>0.587</td><td>0.000</td><td>0.563</td></tr>
+<tr><td>1</td><td>IO</td><td class="c-good">GOOD</td><td>0.586</td><td>0.579</td><td>0.563</td></tr>
+<tr><td>2</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.581</td><td>0.567</td></tr>
+<tr><td>3</td><td>IO</td><td class="c-good">GOOD</td><td>0.588</td><td>0.571</td><td>0.562</td></tr>
+<tr><td>4</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.575</td><td>0.567</td></tr>
+<tr><td>5</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.577</td><td>0.565</td></tr>
+<tr><td>6</td><td>IO</td><td class="c-good">GOOD</td><td>0.579</td><td>0.576</td><td>0.566</td></tr>
+<tr><td>7</td><td>IO</td><td class="c-good">GOOD</td><td>0.585</td><td>0.576</td><td>0.565</td></tr>
+<tr><td>8</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>9</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.576</td><td>0.562</td></tr>
+<tr><td>10</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.578</td><td>0.567</td></tr>
+<tr><td>11</td><td>IO</td><td class="c-good">GOOD</td><td>0.584</td><td>0.579</td><td>0.567</td></tr>
+<tr><td>12</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.565</td></tr>
+<tr><td>13</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.574</td><td>0.564</td></tr>
+<tr><td>14</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.576</td><td>0.567</td></tr>
+<tr><td>15</td><td>IO</td><td class="c-good">GOOD</td><td>0.584</td><td>0.571</td><td>0.558</td></tr>
+<tr><td>16</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.567</td><td>0.000</td></tr>
+<tr><td>17</td><td>VDD</td><td class="c-good">GOOD</td><td>0.345</td><td>0.509</td><td>0.000</td></tr>
+<tr><td>18</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>19</td><td>IO</td><td class="c-good">GOOD</td><td>0.582</td><td>0.000</td><td>0.569</td></tr>
+<tr><td>20</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.580</td><td>0.568</td></tr>
+<tr><td>21</td><td>IO</td><td class="c-good">GOOD</td><td>0.586</td><td>0.579</td><td>0.567</td></tr>
+<tr><td>22</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.568</td></tr>
+<tr><td>23</td><td>IO</td><td class="c-good">GOOD</td><td>0.582</td><td>0.578</td><td>0.568</td></tr>
+<tr><td>24</td><td>IO</td><td class="c-good">GOOD</td><td>0.585</td><td>0.567</td><td>0.000</td></tr>
+<tr><td>25</td><td>PWR</td><td class="c-good">GOOD</td><td>0.370</td><td>0.504</td><td>0.000</td></tr>
+<tr><td>26</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>27</td><td>IO</td><td class="c-good">GOOD</td><td>0.580</td><td>0.000</td><td>0.414</td></tr>
+<tr><td>28</td><td>IO</td><td class="c-bad">SHORT TO GND</td><td>0.051</td><td>0.270</td><td>0.258</td></tr>
+<tr><td>29</td><td>IO</td><td class="c-good">GOOD</td><td>0.582</td><td>0.417</td><td>0.579</td></tr>
+<tr><td>30</td><td>IO</td><td class="c-good">GOOD</td><td>0.587</td><td>0.579</td><td>0.567</td></tr>
+<tr><td>31</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.578</td><td>0.568</td></tr>
+<tr><td>32</td><td>IO</td><td class="c-good">GOOD</td><td>0.586</td><td>0.571</td><td>0.000</td></tr>
+<tr><td>33</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>34</td><td>VCORE</td><td class="c-good">GOOD</td><td>0.384</td><td>0.000</td><td>0.000</td></tr>
+<tr><td>35</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>36</td><td>VDD</td><td class="c-good">GOOD</td><td>0.392</td><td>0.000</td><td>0.512</td></tr>
+<tr><td>37</td><td>IO</td><td class="c-good">GOOD</td><td>0.578</td><td>0.000</td><td>0.568</td></tr>
+<tr><td>38</td><td>IO</td><td class="c-good">GOOD</td><td>0.582</td><td>0.577</td><td>0.567</td></tr>
+<tr><td>39</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.579</td><td>0.564</td></tr>
+<tr><td>40</td><td>IO</td><td class="c-good">GOOD</td><td>0.585</td><td>0.579</td><td>0.563</td></tr>
+<tr><td>41</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.562</td></tr>
+<tr><td>42</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.576</td><td>0.567</td></tr>
+<tr><td>43</td><td>IO</td><td class="c-good">GOOD</td><td>0.581</td><td>0.578</td><td>0.567</td></tr>
+<tr><td>44</td><td>IO</td><td class="c-good">GOOD</td><td>0.609</td><td>0.571</td><td>0.563</td></tr>
+<tr><td>45</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>46</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.575</td><td>0.563</td></tr>
+<tr><td>47</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.563</td></tr>
+<tr><td>48</td><td>IO</td><td class="c-good">GOOD</td><td>0.582</td><td>0.578</td><td>0.565</td></tr>
+<tr><td>49</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.576</td><td>0.563</td></tr>
+<tr><td>50</td><td>IO</td><td class="c-good">GOOD</td><td>0.587</td><td>0.580</td><td>0.564</td></tr>
+<tr><td>51</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.577</td><td>0.567</td></tr>
+<tr><td>52</td><td>IO</td><td class="c-good">GOOD</td><td>0.588</td><td>0.581</td><td>0.568</td></tr>
+<tr><td>53</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.574</td><td>0.570</td></tr>
+<tr><td>54</td><td>IO</td><td class="c-good">GOOD</td><td>0.589</td><td>0.578</td><td>0.566</td></tr>
+<tr><td>55</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.571</td><td>0.000</td></tr>
+<tr><td>56</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>57</td><td>VDD</td><td class="c-good">GOOD</td><td>0.396</td><td>0.000</td><td>0.513</td></tr>
+<tr><td>58</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.000</td><td>0.563</td></tr>
+<tr><td>59</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.575</td><td>0.562</td></tr>
+<tr><td>60</td><td>IO</td><td class="c-good">GOOD</td><td>0.585</td><td>0.577</td><td>0.568</td></tr>
+<tr><td>61</td><td>IO</td><td class="c-good">GOOD</td><td>0.588</td><td>0.568</td><td>0.000</td></tr>
+<tr><td>62</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>63</td><td>PWR</td><td class="c-good">GOOD</td><td>0.395</td><td>0.000</td><td>0.508</td></tr>
+<tr><td>64</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.000</td><td>0.556</td></tr>
+<tr><td>65</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.566</td></tr>
+<tr><td>66</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.579</td><td>0.568</td></tr>
+<tr><td>67</td><td>IO</td><td class="c-good">GOOD</td><td>0.587</td><td>0.589</td><td>0.415</td></tr>
+<tr><td>68</td><td>IO</td><td class="c-bad">SHORT TO GND</td><td>0.032</td><td>0.267</td><td>0.258</td></tr>
+<tr><td>69</td><td>IO</td><td class="c-good">GOOD</td><td>0.583</td><td>0.420</td><td>0.000</td></tr>
+<tr><td>70</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>71</td><td>VCORE</td><td class="c-good">GOOD</td><td>0.396</td><td>0.000</td><td>0.000</td></tr>
+<tr><td>72</td><td>GND</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>
+<tr><td>73</td><td>VDD</td><td class="c-good">GOOD</td><td>0.397</td><td>0.000</td><td>0.522</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</body>
+</html>
