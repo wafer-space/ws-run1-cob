@@ -69,6 +69,22 @@ PANEL_SHAPE = {
     'TQ0': 'shape_1x0p5', 'TQ1': 'shape_1x0p5',
 }
 
+# Maps the internal panel slot ID (as used in the raw tag, e.g. "AF0") to the
+# manufacturer's die name (e.g. "AF02"). The same die can appear in multiple
+# panel slots, each keeping its own set of locations. Reports are grouped by
+# die name.
+DIE_MAP = {
+    'AF02': ['AF0', 'AF1', 'AF2', 'AF3', 'AF4', 'AF5', 'AF6', 'AF7'],
+    'GD04': ['GD0', 'GD1'],
+    'JKU2': ['JK0', 'JK1'],
+    'OCD2': ['OC0', 'OC1'],
+    'TQVC': ['TQ0', 'TQ1'],
+}
+PANEL_TO_DIE = {panel_id: die_name for die_name, panel_ids in DIE_MAP.items() for panel_id in panel_ids}
+
+def die_for_panel(panel_id):
+    return PANEL_TO_DIE.get(panel_id, panel_id)
+
 ROLE_ABBR = {IO: 'IO', VDD: 'VDD', VCORE: 'VCORE', PWR: 'PWR', GND: 'GND', BUS: 'GND', NC: 'NC'}
 
 def shape_for_panel(panel_id):
@@ -147,30 +163,34 @@ def build_die_svg(pads, shape, run):
     lines = [f'<svg viewBox="0 0 {svg_w:.1f} {svg_h:.1f}" xmlns="http://www.w3.org/2000/svg">']
 
     # Die body
-    lines.append(f'<rect class="die-body" x="{dx:.1f}" y="{dy:.1f}" width="{die_w:.1f}" height="{die_h:.1f}" rx="6" fill="#1a1a2e" stroke="#555" stroke-width="1.5"/>')
+    lines.append(f'<rect class="die-body" x="{dx:.1f}" y="{dy:.1f}" width="{die_w:.1f}" height="{die_h:.1f}" rx="6" fill="#2e2e2e" stroke="#555" stroke-width="1.5"/>')
 
     # Pin 1 dot (top-right)
     dr = max(4, PS * 0.18)
     lines.append(f'<circle cx="{dx+die_w-dr-5:.1f}" cy="{dy+dr+5:.1f}" r="{dr:.1f}" fill="#ffffff"/>')
 
-    # Result badge centre — two boxes: green (pass) and red (fail)
+    # Result badge centre — green (pass) box, plus red (fail) box if any failed
     if run:
         cx, cy = dx + die_w/2, dy + die_h/2
         n_pass = run['good']
         n_fail = run['tested'] - run['good']
         bw, bh, gap = 44, 44, 6
-        total_w = bw * 2 + gap
-        lx = cx - total_w / 2   # left box x
-        rx = lx + bw + gap       # right box x
         by = cy - bh / 2
+        if n_fail > 0:
+            total_w = bw * 2 + gap
+            lx = cx - total_w / 2   # left box x
+            rx = lx + bw + gap       # right box x
+        else:
+            lx = cx - bw / 2
         # Pass box
         lines.append(f'<rect class="die-badge-rect" x="{lx:.1f}" y="{by:.1f}" width="{bw}" height="{bh}" rx="6" fill="#143524" stroke="#3ad17a" stroke-width="1.5"/>')
         lines.append(f'<text class="die-badge-text" x="{lx+bw/2:.1f}" y="{by+14:.1f}" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#3ad17a">PASS</text>')
         lines.append(f'<text class="die-badge-text" x="{lx+bw/2:.1f}" y="{by+34:.1f}" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#3ad17a">{n_pass}</text>')
         # Fail box
-        lines.append(f'<rect class="die-badge-rect" x="{rx:.1f}" y="{by:.1f}" width="{bw}" height="{bh}" rx="6" fill="#5a2220" stroke="#e2554f" stroke-width="1.5"/>')
-        lines.append(f'<text class="die-badge-text" x="{rx+bw/2:.1f}" y="{by+14:.1f}" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#e2554f">FAIL</text>')
-        lines.append(f'<text class="die-badge-text" x="{rx+bw/2:.1f}" y="{by+34:.1f}" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#e2554f">{n_fail}</text>')
+        if n_fail > 0:
+            lines.append(f'<rect class="die-badge-rect" x="{rx:.1f}" y="{by:.1f}" width="{bw}" height="{bh}" rx="6" fill="#5a2220" stroke="#e2554f" stroke-width="1.5"/>')
+            lines.append(f'<text class="die-badge-text" x="{rx+bw/2:.1f}" y="{by+14:.1f}" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#e2554f">FAIL</text>')
+            lines.append(f'<text class="die-badge-text" x="{rx+bw/2:.1f}" y="{by+34:.1f}" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#e2554f">{n_fail}</text>')
 
     north_pads = ring[0:nc]
     left_pads  = ring[nc:nc+ec]
@@ -233,9 +253,9 @@ def build_die_svg(pads, shape, run):
 # ── HTML template ─────────────────────────────────────────────────────────────
 CSS = """
 :root {
-  --bg-app:    #15171c;
-  --bg-panel:  #1b1e25;
-  --bg-sunken: #11141a;
+  --bg-app:    #1A1A1A;
+  --bg-panel:  #222222;
+  --bg-sunken: #101010;
   --tx-primary: #e7eaf0;
   --tx-second:  #c4c8d0;
   --tx-muted:   #8a909c;
@@ -325,9 +345,9 @@ def build_table(pads, shape):
         r = by_dp.get(pad_info['dp'])
         role_abbr = ROLE_ABBR.get(pad_info['role'], pad_info['role'])
         if pad_info['role'] == BUS:
-            rows.append(f'<tr><td>{pad_info["dp"]}</td><td>{role_abbr}</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>')
+            rows.append(f'<tr><td>{pad_info["dp"]}</td><td>{role_abbr}</td><td class="c-muted">untested</td><td>—</td><td>—</td><td>—</td></tr>')
         elif r is None:
-            rows.append(f'<tr><td>{pad_info["dp"]}</td><td>{role_abbr}</td><td class="c-muted">—</td><td>—</td><td>—</td><td>—</td><td class="c-muted">untested</td></tr>')
+            rows.append(f'<tr><td>{pad_info["dp"]}</td><td>{role_abbr}</td><td class="c-muted">untested</td><td>—</td><td>—</td><td>—</td></tr>')
         else:
             label = result_label(r)
             sv = f"{r['senseV']:.3f}" if r.get('senseV') is not None else '—'
@@ -338,7 +358,11 @@ def build_table(pads, shape):
             rows.append(f'<tr><td>{pad_info["dp"]}</td><td>{role_abbr}</td><td class="{bc}">{label}</td><td>{sv}</td><td>{pv}</td><td>{nv}</td></tr>')
     return '\n'.join(rows)
 
-def build_html(panel_id, loc, run, shape, date_str, index_label):
+def build_breadcrumb(crumbs):
+    """crumbs: list of (label, href_or_None) pairs; the current page should have href=None."""
+    return ' / '.join(f'<a href="{href}">{label}</a>' if href else label for label, href in crumbs)
+
+def build_html(panel_id, loc, run, shape, date_str, crumbs):
     outcome = run['outcome']
     n_pass = run['good']
     n_fail = run['tested'] - run['good']
@@ -368,7 +392,7 @@ def build_html(panel_id, loc, run, shape, date_str, index_label):
 <body>
 <div class="page">
 {LOGO_HTML}
-<h1><a href="index.html">{index_label}</a> / {panel_id} / {loc}</h1>
+<h1>{build_breadcrumb(crumbs)}</h1>
 <div class="sub">{shape['name']} &nbsp;·&nbsp; {ts}</div>
 <div class="outcome-row">
   <span class="badge badge-{outcome}">{outcome}</span>
@@ -394,12 +418,13 @@ def build_html(panel_id, loc, run, shape, date_str, index_label):
 </body>
 </html>"""
 
+
 # ── Index ─────────────────────────────────────────────────────────────────────
 INDEX_CSS = """
 :root {
-  --bg-app:    #15171c;
-  --bg-panel:  #1b1e25;
-  --bg-sunken: #11141a;
+  --bg-app:    #1A1A1A;
+  --bg-panel:  #222222;
+  --bg-sunken: #101010;
   --tx-primary: #e7eaf0;
   --tx-second:  #c4c8d0;
   --tx-muted:   #8a909c;
@@ -420,7 +445,13 @@ footer{margin-top:auto;padding-top:16px;padding-bottom:44px;border-top:1px solid
 footer a{font-size:12px;color:var(--tx-muted);text-decoration:none;}
 footer a:hover{color:#7fb7eb;}
 h1{color:var(--tx-primary);font-size:20px;font-weight:600;margin-bottom:4px;}
+h1 a{color:var(--tx-primary);text-decoration:none;}
+h1 a:hover{color:#7fb7eb;}
 .meta{color:var(--tx-muted);font-size:12px;margin-bottom:32px;font-family:'SF Mono','Menlo',monospace;}
+ul{list-style:none;}
+li{border-bottom:1px solid var(--line);padding:10px 0;}
+ul a{color:var(--tx-primary);text-decoration:none;font-family:'SF Mono','Menlo',monospace;font-size:13px;}
+ul a:hover{color:#7fb7eb;}
 .panel-block{margin-bottom:28px;}
 .panel-title{color:var(--tx-second);font-size:13px;font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line);}
 .panel-subtitle{color:var(--tx-muted);font-size:11px;font-weight:400;margin-left:8px;}
@@ -450,48 +481,97 @@ td a:hover{color:#7fb7eb;}
 
 LOCS_ORDER = ['R1C1','R1C2','R1C3','R1C4','R1C5','R2C1','R2C2','R2C3','R2C4','R2C5']
 
-def build_panel_table(rows):
-    """Render one panel's rows as an HTML table."""
-    rows_sorted = sorted(rows, key=lambda e: LOCS_ORDER.index(e['loc']) if e['loc'] in LOCS_ORDER else 99)
-    total_pass = sum(e['n_pass'] for e in rows_sorted)
-    total_bonds = sum(e['n_total'] for e in rows_sorted)
-    shape_name = rows_sorted[0]['shape_name']
-
+def build_loc_table(loc_entries):
+    """Render a table of per-(panel slot, location) rows for one die+date."""
+    rows_sorted = sorted(
+        loc_entries,
+        key=lambda e: (e['panel_id'], LOCS_ORDER.index(e['loc']) if e['loc'] in LOCS_ORDER else 99),
+    )
     trs = []
     for e in rows_sorted:
         badge_cls = f'badge-{e["outcome"]}'
         pass_cls = 'c-pass' if e['n_pass'] == e['n_total'] else ''
         fail_cls = 'c-fail' if e['n_fail'] > 0 else 'c-muted'
         trs.append(f'    <tr>\n'
-                   f'      <td><a href="{e["filename"]}">{e["loc"]}</a></td>\n'
+                   f'      <td><a href="{e["filename"]}">{e["panel_id"]} / {e["loc"]}</a></td>\n'
                    f'      <td><span class="badge {badge_cls}">{e["outcome"]}</span></td>\n'
                    f'      <td class="c-muted">{e["n_total"]}</td>\n'
                    f'      <td class="{pass_cls}">{e["n_pass"]}</td>\n'
                    f'      <td class="{fail_cls}">{e["n_fail"]}</td>\n'
-                   f'      <td class="c-muted">{e["date_str"]}</td>\n'
                    f'    </tr>')
-
-    return (f'<div class="panel-block">\n'
-            f'  <div class="panel-title">{rows_sorted[0]["panel_id"]}'
-            f' <span class="panel-subtitle">{shape_name} &nbsp;·&nbsp; {total_pass}/{total_bonds} bonds pass</span></div>\n'
-            f'  <table>\n'
-            f'    <thead><tr><th>Location</th><th>Outcome</th><th>Tested</th><th>Pass</th><th>Fail</th><th>Date</th></tr></thead>\n'
+    return (f'  <table>\n'
+            f'    <thead><tr><th>Slot / Location</th><th>Outcome</th><th>Tested</th><th>Pass</th><th>Fail</th></tr></thead>\n'
             f'    <tbody>\n{"".join(trs)}\n    </tbody>\n'
-            f'  </table>\n'
-            f'</div>')
+            f'  </table>')
 
-def build_index(entries, sources):
-    """
-    entries: flat list of entry dicts (one per COB, already deduplicated to latest).
-    sources: list of source filenames shown in the meta line.
-    """
-    panels = {}
-    for e in entries:
-        panels.setdefault(e['panel_id'], []).append(e)
+def build_date_index(die_name, date_str, loc_entries, crumbs, shape_name):
+    total_pass = sum(e['n_pass'] for e in loc_entries)
+    total_bonds = sum(e['n_total'] for e in loc_entries)
+    table_html = build_loc_table(loc_entries)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BondView — {die_name} / {date_str}</title>
+<style>{INDEX_CSS}</style>
+</head>
+<body>
+<div class="page">
+{LOGO_HTML}
+<h1>{build_breadcrumb(crumbs)}</h1>
+<div class="meta">{shape_name} &nbsp;·&nbsp; {total_pass}/{total_bonds} bonds pass</div>
+{table_html}
+{FOOTER_HTML}
+</div>
+</body>
+</html>"""
 
-    panel_html = '\n'.join(build_panel_table(rows) for rows in panels.values())
+def build_die_index(die_name, date_entries, crumbs):
+    dates_sorted = sorted(date_entries, key=lambda e: e['date_str'])
+    total_pass = sum(e['n_pass'] for e in dates_sorted)
+    total_boards = sum(e['n_total'] for e in dates_sorted)
+    shape_name = dates_sorted[0]['shape_name']
+    trs = []
+    for e in dates_sorted:
+        pass_cls = 'c-pass' if e['n_pass'] == e['n_total'] else ''
+        fail_cls = 'c-fail' if e['n_fail'] > 0 else 'c-muted'
+        trs.append(f'    <tr>\n'
+                   f'      <td><a href="{e["date_str"]}/index.html">{e["date_str"]}</a></td>\n'
+                   f'      <td class="c-muted">{e["n_total"]}</td>\n'
+                   f'      <td class="{pass_cls}">{e["n_pass"]}</td>\n'
+                   f'      <td class="{fail_cls}">{e["n_fail"]}</td>\n'
+                   f'    </tr>')
+    table_html = (f'  <table>\n'
+                  f'    <thead><tr><th>Date</th><th>Boards</th><th>Pass</th><th>Fail</th></tr></thead>\n'
+                  f'    <tbody>\n{"".join(trs)}\n    </tbody>\n'
+                  f'  </table>')
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BondView — {die_name}</title>
+<style>{INDEX_CSS}</style>
+</head>
+<body>
+<div class="page">
+{LOGO_HTML}
+<h1>{build_breadcrumb(crumbs)}</h1>
+<div class="meta">{shape_name} &nbsp;·&nbsp; {total_boards} boards &nbsp;·&nbsp; {total_pass} pass &nbsp;·&nbsp; {total_boards - total_pass} fail</div>
+{table_html}
+{FOOTER_HTML}
+</div>
+</body>
+</html>"""
+
+def build_root_index(die_entries, sources):
+    dies_sorted = sorted(die_entries, key=lambda e: e['die_name'])
     sources_str = ', '.join(sources)
-
+    items_html = '\n'.join(
+        f'  <li><a href="{e["die_name"]}/index.html">{e["die_name"]}</a></li>'
+        for e in dies_sorted
+    )
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -504,8 +584,10 @@ def build_index(entries, sources):
 <div class="page">
 {LOGO_HTML}
 <h1>Bond Test Results</h1>
-<div class="meta">{sources_str} &nbsp;·&nbsp; {len(entries)} COBs</div>
-{panel_html}
+<div class="meta">{sources_str} &nbsp;·&nbsp; {len(dies_sorted)} dies</div>
+<ul>
+{items_html}
+</ul>
 {FOOTER_HTML}
 </div>
 </body>
@@ -515,8 +597,8 @@ def build_index(entries, sources):
 LOCS = {'R1C1','R1C2','R1C3','R1C4','R1C5','R2C1','R2C2','R2C3','R2C4','R2C5'}
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate per-COB HTML reports from JSONL test results.')
-    parser.add_argument('files', nargs='*', help='Paths to .jsonl files in order; later files override earlier ones for the same COB. Defaults to all .jsonl in script directory sorted by name.')
+    parser = argparse.ArgumentParser(description='Generate per-COB HTML reports from JSONL test results, grouped by die then by test date.')
+    parser.add_argument('files', nargs='*', help='Paths to .jsonl files in order, one per test date. Defaults to all .jsonl in script directory sorted by name.')
     parser.add_argument('-o', '--output', help='Output directory (default: reports/ next to this script)')
     args = parser.parse_args()
 
@@ -536,12 +618,12 @@ def main():
             print('No .jsonl files found.')
             return
 
-    # Accumulate COB results; later files overwrite earlier ones for the same tag
     def img_key(r):
         m = re.search(r'(\d{8})T(\d{6})', r.get('img', ''))
         return m.group(0) if m else ''
 
-    best = {}  # tag → (date_str, latest_run)
+    # results_by_date[date_str][tag] = latest run for that tag within that date's file
+    results_by_date = {}
     for path in paths:
         date_str = path.stem
         print(f'Reading: {path}')
@@ -554,37 +636,92 @@ def main():
             if sep == -1: continue
             if tag[sep+1:] not in LOCS: continue
             by_tag.setdefault(tag, []).append(r)
-        for tag, runs in by_tag.items():
-            best[tag] = (date_str, max(runs, key=img_key))
+        results_by_date[date_str] = {tag: max(runs, key=img_key) for tag, runs in by_tag.items()}
 
-    # Generate reports and collect index entries
-    entries = []
-    for tag, (date_str, run) in sorted(best.items()):
-        sep = tag.rfind('_')
-        loc, panel_id = tag[sep+1:], tag[:sep]
-        shape = shape_for_panel(panel_id)
-        if not shape and run.get('pads'):
-            shape = shape_for_pad_count(len(run['pads']))
+    # Group into die → date → [(panel_id, loc), ...]. A die can occupy multiple
+    # panel slots, each with its own full set of locations, so slot+loc (not
+    # loc alone) is the unique key within a die+date.
+    dies = {}
+    for date_str, by_tag in results_by_date.items():
+        for tag, run in sorted(by_tag.items()):
+            sep = tag.rfind('_')
+            loc, panel_id = tag[sep+1:], tag[:sep]
+            shape = shape_for_panel(panel_id)
+            if not shape and run.get('pads'):
+                shape = shape_for_pad_count(len(run['pads']))
+            die_name = die_for_panel(panel_id)
+            dies.setdefault(die_name, {}).setdefault(date_str, []).append({
+                'panel_id': panel_id, 'loc': loc, 'run': run, 'shape': shape,
+            })
 
-        html = build_html(panel_id, loc, run, shape, date_str, out_dir.name)
-        filename = f'{tag}.html'
-        (out_dir / filename).write_text(html, encoding='utf-8')
+    root_label = out_dir.resolve().name
+    n_reports = 0
+    die_entries = []
 
-        n_pass = run['good']
-        n_fail = run['tested'] - n_pass
-        outcome = run['outcome']
-        print(f'  {filename}  [{outcome}]  {n_pass}/{run["tested"]}  ({date_str})')
-        entries.append({
-            'panel_id': panel_id, 'loc': loc, 'filename': filename,
-            'outcome': outcome, 'n_pass': n_pass, 'n_fail': n_fail,
-            'n_total': run['tested'], 'shape_name': shape['name'],
-            'date_str': date_str,
+    for die_name, dates in sorted(dies.items()):
+        date_entries = []
+        for date_str, items in sorted(dates.items()):
+            loc_entries = []
+            date_dir = out_dir / die_name / date_str
+            date_dir.mkdir(parents=True, exist_ok=True)
+            items_sorted = sorted(items, key=lambda it: (it['panel_id'], it['loc']))
+            for info in items_sorted:
+                panel_id, loc, run, shape = info['panel_id'], info['loc'], info['run'], info['shape']
+                filename = f'{panel_id}_{loc}.html'
+                crumbs = [
+                    (root_label, '../../index.html'),
+                    (die_name, '../index.html'),
+                    (date_str, 'index.html'),
+                    (f'{panel_id}_{loc}', None),
+                ]
+                html = build_html(panel_id, loc, run, shape, date_str, crumbs)
+                (date_dir / filename).write_text(html, encoding='utf-8')
+                n_pass = run['good']
+                n_fail = run['tested'] - n_pass
+                outcome = run['outcome']
+                n_reports += 1
+                print(f'  {die_name}/{date_str}/{filename}  [{outcome}]  {n_pass}/{run["tested"]}')
+                loc_entries.append({
+                    'panel_id': panel_id, 'loc': loc, 'filename': filename, 'outcome': outcome,
+                    'n_pass': n_pass, 'n_fail': n_fail, 'n_total': run['tested'],
+                })
+
+            shape_name = items_sorted[0]['shape']['name']
+            date_crumbs = [
+                (root_label, '../../index.html'),
+                (die_name, '../index.html'),
+                (date_str, None),
+            ]
+            date_index_html = build_date_index(die_name, date_str, loc_entries, date_crumbs, shape_name)
+            (date_dir / 'index.html').write_text(date_index_html, encoding='utf-8')
+
+            n_boards = len(loc_entries)
+            n_boards_pass = sum(1 for e in loc_entries if e['outcome'] == 'PASS')
+            date_entries.append({
+                'date_str': date_str, 'shape_name': shape_name,
+                'outcome': 'PASS' if all(e['outcome'] == 'PASS' for e in loc_entries) else 'FAIL',
+                'n_pass': n_boards_pass, 'n_fail': n_boards - n_boards_pass, 'n_total': n_boards,
+            })
+
+        die_crumbs = [(root_label, '../index.html'), (die_name, None)]
+        die_index_html = build_die_index(die_name, date_entries, die_crumbs)
+        (out_dir / die_name / 'index.html').write_text(die_index_html, encoding='utf-8')
+
+        total_pass = sum(e['n_pass'] for e in date_entries)
+        total_boards = sum(e['n_total'] for e in date_entries)
+        die_entries.append({
+            'die_name': die_name, 'shape_name': date_entries[0]['shape_name'],
+            'n_dates': len(date_entries),
+            'n_pass': total_pass, 'n_fail': total_boards - total_pass, 'n_total': total_boards,
         })
 
     sources = [p.name for p in paths]
-    index_html = build_index(entries, sources)
-    (out_dir / 'index.html').write_text(index_html, encoding='utf-8')
-    print(f'\nGenerated {len(entries)} reports + index in {out_dir}')
+    root_index_html = build_root_index(die_entries, sources)
+    (out_dir / 'index.html').write_text(root_index_html, encoding='utf-8')
+    print(f'\nGenerated {n_reports} reports across {len(die_entries)} dies in {out_dir}')
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == '__main__':
     main()
