@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 import os
 import re
 import glob
@@ -60,13 +61,27 @@ SHAPES = {
     }
 }
 
+# Keyed by exact die_key (old-format slot, e.g. "AF0", or new-format full die
+# name, e.g. "AF02") so lookup is an exact match, not a prefix guess. A
+# die_key with no entry here has no known physical layout, and must be
+# rendered with an unknown-shape placeholder rather than silently defaulting
+# to some other die's shape.
 PANEL_SHAPE = {
+    # Old-format slot codes
     'AF0': 'shape_1x1', 'AF1': 'shape_1x1', 'AF2': 'shape_1x1', 'AF3': 'shape_1x1',
     'AF4': 'shape_1x1', 'AF5': 'shape_1x1', 'AF6': 'shape_1x1', 'AF7': 'shape_1x1',
     'GD0': 'shape_1x0p5', 'GD1': 'shape_1x0p5',
     'JK0': 'shape_1x0p5', 'JK1': 'shape_1x0p5',
     'OC0': 'shape_1x0p5', 'OC1': 'shape_1x0p5',
     'TQ0': 'shape_1x0p5', 'TQ1': 'shape_1x0p5',
+    # New-format full die names
+    'AF02': 'shape_1x1',
+    'BRWN': 'shape_1x1',
+    'ISHI': 'shape_1x1',
+    'GD04': 'shape_1x0p5',
+    'JKU2': 'shape_1x0p5',
+    'OCD2': 'shape_1x0p5',
+    'TQVC': 'shape_1x0p5',
 }
 
 # Maps the internal panel slot ID (as used in the raw tag, e.g. "AF0") to the
@@ -88,16 +103,56 @@ def die_for_panel(panel_id):
 ROLE_ABBR = {IO: 'IO', VDD: 'VDD', VCORE: 'VCORE', PWR: 'PWR', GND: 'GND', BUS: 'GND', NC: 'NC'}
 
 def shape_for_panel(panel_id):
-    for prefix, key in PANEL_SHAPE.items():
-        if panel_id.startswith(prefix):
-            return SHAPES[key]
-    return list(SHAPES.values())[0]
+    """Exact-match a die_key (old slot or new full die name) to its known
+    physical shape. Returns None if the die has no known layout — callers
+    must render an unknown-shape placeholder rather than defaulting to some
+    other die's shape."""
+    key = PANEL_SHAPE.get(panel_id)
+    return SHAPES[key] if key else None
 
 def shape_for_pad_count(n):
     for s in SHAPES.values():
         if len(s['ring']) == n:
             return s
-    return list(SHAPES.values())[0]
+    return None
+
+# The 8 capacitor apins, stable across data formats — identifies cap pads in
+# new-format rows (which carry an explicit CAP method) and old-format rows
+# (which don't).
+CAP_APINS = {9, 17, 25, 27, 47, 52, 60, 62}
+POWER_ROLES = (VDD, VCORE, PWR)
+
+def _is_cap_pad(p):
+    """A pad is a capacitor pad when its method is a CAP method, or — for
+    old-format pads without a method — when it sits on one of the known
+    capacitor apins."""
+    m = p.get('method')
+    if m:
+        return m.startswith('CAP')
+    return p.get('apin') in CAP_APINS
+
+def shape_for_run(run, preferred):
+    """Infer the run's adapter layout from its pad-role signature: the run's
+    IO pads and cap pads must exactly fill one ring's IO + power positions
+    (the adapter board defines which pads get tested, so this identifies the
+    adapter map per run). Returns (shape, mismatch) where mismatch is True
+    when the inferred layout differs from the die's expected PANEL_SHAPE
+    layout. Falls back to the preferred shape (mismatch=False) when pads are
+    empty or nothing matches cleanly, so untestable rows (e.g. DUT_REMOVED)
+    still render on the die's expected layout."""
+    pads = run.get('pads') or []
+    if not pads:
+        return preferred, False
+    io_dps = {p['dp'] for p in pads if not _is_cap_pad(p)}
+    cap_dps = {p['dp'] for p in pads if _is_cap_pad(p)}
+    if not io_dps or not cap_dps:
+        return preferred, False
+    for shape in SHAPES.values():
+        io_pos = {e['dp'] for e in shape['ring'] if e['role'] == IO}
+        pwr_pos = {e['dp'] for e in shape['ring'] if e['role'] in POWER_ROLES}
+        if io_dps == io_pos and cap_dps == pwr_pos:
+            return shape, (preferred is not None and shape is not preferred)
+    return preferred, False
 
 # ── SVG die map generation ────────────────────────────────────────────────────
 PS, SP, GP, MG = 18, 2, 4, 14
@@ -136,6 +191,41 @@ def is_light(hex_color):
     c = hex_color.lstrip('#')
     r, g, b = int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
     return (0.299*r + 0.587*g + 0.114*b) > 145
+
+def pad_tooltip(pad_info, result, ctx=None):
+    """Tooltip text for one die-map pad. Old-format pads show the
+    sense/prev/next voltages; new-format pads (they carry a 'method' key)
+    show their measurement arrays instead."""
+    tt = f"DP {pad_info['dp']} [{pad_info['role']}]"
+    if not result:
+        if pad_info['role'] not in (BUS, NC):
+            tt += '&#10;(untested)'
+        return tt
+    tt += f"&#10;Result: {result['result']}"
+    method = result.get('method')
+    if not method:
+        sv = f"{result['senseV']:.3f}" if result.get('senseV') is not None else '—'
+        pv = f"{result['prevV']:.3f}"  if result.get('prevV')  is not None else '—'
+        nv = f"{result['nextV']:.3f}"  if result.get('nextV')  is not None else '—'
+        tt += f"&#10;Sense: {sv}V  Prev: {pv}V  Next: {nv}V"
+        if result.get('prevSh'): tt += '&#10;⚠ Prev short'
+        if result.get('nextSh'): tt += '&#10;⚠ Next short'
+        return tt
+    tt += f' · {method}'
+    if method.startswith('CAP'):
+        vrs = result.get('vrs') or []
+        if vrs:
+            tt += '&#10;cap vrs: ' + ' / '.join(fmt_volts(v) for v in vrs) + ' V'
+        vfs = result.get('vfs') or []
+        if vfs:
+            tt += '&#10;cap vfs: ' + ' / '.join(fmt_volts(v) for v in vfs) + ' V'
+    else:
+        for key, fmt, unit in (('rr', fmt_ohms, ''), ('vr', fmt_volts, ' V'),
+                               ('rf', fmt_ohms, ''), ('vf', fmt_volts, ' V')):
+            arr = result.get(key)
+            if arr:
+                tt += f'&#10;{key}: ' + ' / '.join(fmt(v) for v in arr) + unit
+    return tt
 
 def build_die_svg(pads, shape, run):
     nc, ec, sc, wc = shape['north'], shape['east'], shape['south'], shape['west']
@@ -224,17 +314,7 @@ def build_die_svg(pads, shape, run):
             text_fill = '#000' if is_light(color) else '#fff'
 
             # Tooltip
-            tt = f"DP {pad_info['dp']} [{pad_info['role']}]"
-            if result:
-                tt += f"&#10;Result: {result['result']}"
-                sv = f"{result['senseV']:.3f}" if result.get('senseV') is not None else '—'
-                pv = f"{result['prevV']:.3f}"  if result.get('prevV')  is not None else '—'
-                nv = f"{result['nextV']:.3f}"  if result.get('nextV')  is not None else '—'
-                tt += f"&#10;Sense: {sv}V  Prev: {pv}V  Next: {nv}V"
-                if result.get('prevSh'): tt += '&#10;⚠ Prev short'
-                if result.get('nextSh'): tt += '&#10;⚠ Next short'
-            elif pad_info['role'] not in (BUS, NC):
-                tt += '&#10;(untested)'
+            tt = pad_tooltip(pad_info, result, run.get('context') if run else None)
 
             lines.append(f'<g>')
             lines.append(f'  <rect x="{x:.1f}" y="{y:.1f}" width="{PS}" height="{PS}" rx="2" fill="{color}" stroke="#222" stroke-width="0.8"/>')
@@ -303,6 +383,8 @@ td{padding:4px 7px;color:var(--tx-second);}
 .c-neighbor{color:#9a8800;font-weight:600;}
 .c-flag{color:var(--warn-fg);font-size:10px;}
 .c-muted{color:var(--tx-faint);}
+.spark svg{display:block;}
+.fwd-cell{white-space:pre-line;font-size:10px;line-height:1.5;}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#3a3e47;border-radius:3px;}
@@ -328,6 +410,27 @@ LEGEND_ITEMS = [
     ('#9a8800', 'SHORT TO NEIGHBOR'),
     ('#616161', 'GND / NC / Untested'),
 ]
+
+def fmt_ohms(v):
+    """Format a resistance for tables/tooltips. The tester clamps OPEN pads
+    at 1e9 Ω, shown as '≥1 GΩ'."""
+    if v is None:
+        return '—'
+    if v >= 9.99e8:
+        return '≥1 GΩ'
+    if v >= 1e6:
+        return f'{v/1e6:.2f} MΩ'
+    if v >= 1e3:
+        return f'{v/1e3:.1f} kΩ'
+    return f'{v:.0f} Ω'
+
+def fmt_volts(v):
+    return '—' if v is None else f'{v:.3f}'
+
+def _fmt_ua(ua):
+    """Compact current label: 10 → '10uA', 1000 → '1mA'. ('u' not 'µ' — the
+    uppercase header transform renders µ as Greek capital mu, which reads M.)"""
+    return f'{ua/1000:g}mA' if ua >= 1000 else f'{ua:g}uA'
 
 def ts_from_img(img):
     if not img:
@@ -411,6 +514,287 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
 {table_rows}
       </tbody>
     </table>
+  </div>
+</div>
+{FOOTER_HTML}
+</div>
+</body>
+</html>"""
+
+
+# ── New-format (v2) report page ───────────────────────────────────────────────
+SPARK_W, SPARK_H, SPARK_PAD = 90, 24, 3
+SPARK_STROKE = {'GOOD': '#4CAF50', 'OPEN': '#c06010'}   # literal hex: SVG attrs can't use CSS vars
+SPARK_VLO, SPARK_VHI = 0.3, 1.0   # default y window (V); charts with data outside get their own range
+
+def _log_xs(vals):
+    """Normalize log10(vals) to [0, 1] across the list's own range, for
+    log-spaced sparkline x positions."""
+    logs = [math.log10(v) for v in vals if v > 0]
+    if len(logs) < 2:
+        return [0.5] * len(vals)
+    lo, hi = logs[0], logs[-1]
+    span = (hi - lo) or 1.0
+    return [(l - lo) / span for l in logs]
+
+def _spark_yrange(series):
+    """Shared y window for one table's sparkline column: the default
+    [SPARK_VLO, SPARK_VHI] when every point fits inside it, otherwise the data
+    bounds padded 15% and rounded outward to 0.1 V. All charts in the table
+    share one scale so similar curves look similar (per-chart windows made
+    near-identical pads render differently when one dipped past the window
+    edge). series is a list of per-pad value lists; callers pass only pads
+    with data, excluding OPEN pads — those clamp at the rail and would
+    stretch the window, so they render clamped at the window top instead."""
+    vals = [v for vs in series for v in vs if v is not None]
+    if not vals:
+        return SPARK_VLO, SPARK_VHI
+    lo, hi = min(vals), max(vals)
+    if lo >= SPARK_VLO - 1e-9 and hi <= SPARK_VHI + 1e-9:
+        return SPARK_VLO, SPARK_VHI
+    pad = (hi - lo) * 0.15 or 0.05   # flat data still gets breathing room
+    return (max(0.0, math.floor((lo - pad) * 10) / 10),
+            math.ceil((hi + pad) * 10) / 10)
+
+def _sparkline_svg(vals, xs, color, title, vlo, vhi):
+    """Single-polyline sparkline; y spans vlo..vhi (per-chart, see
+    _spark_yrange), xs are normalized 0..1 positions (log-spaced for
+    current/cap-time sweeps). Faint top/bottom lines frame the chart box."""
+    w, h, p = SPARK_W, SPARK_H, SPARK_PAD
+    span = (vhi - vlo) or 1.0
+    pts = []
+    for x, v in zip(xs, vals):
+        px = p + x * (w - 2 * p)
+        py = h - p - (min(max(v, vlo), vhi) - vlo) / span * (h - 2 * p)
+        pts.append(f'{px:.1f},{py:.1f}')
+    return (f'<span class="spark"><svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img">'
+            f'<title>{title}</title>'
+            f'<line x1="{p}" y1="{p}" x2="{w - p}" y2="{p}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>'
+            f'<line x1="{p}" y1="{h - p}" x2="{w - p}" y2="{h - p}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>'
+            f'<polyline points="{" ".join(pts)}" fill="none" stroke="{color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
+            f'</svg></span>')
+
+def spark_vr(pad, ctx, vlo, vhi):
+    """vr-vs-current sparkline for one IO pad on the table's shared scale;
+    None when the pad has no vr data."""
+    vr = pad.get('vr')
+    if not vr:
+        return None
+    currents = (ctx or {}).get('currentListUa') or [10, 100, 1000]
+    xs = _log_xs(currents)
+    title = f"DP {pad['dp']} vr: " + ' · '.join(
+        f'{fmt_volts(v)} V @{_fmt_ua(u)}' for v, u in zip(vr, currents))
+    color = SPARK_STROKE.get(pad.get('result'), '#616161')
+    return _sparkline_svg(vr, xs, color, title, vlo, vhi)
+
+def spark_cap(pad, ctx, vlo, vhi):
+    """Charge-curve sparkline (vrs, with vfs in the tooltip when present) for
+    one cap pad on the table's shared scale; None when the pad has no vrs
+    data."""
+    vrs = pad.get('vrs')
+    if not vrs:
+        return None
+    times = (ctx or {}).get('capTimeListUs') or list(range(1, len(vrs) + 1))
+    xs = _log_xs(times)
+    title = f"DP {pad['dp']} vrs: " + ' · '.join(
+        f'{fmt_volts(v)} V @{t:g}us' for v, t in zip(vrs, times))
+    vfs = pad.get('vfs')
+    if vfs:
+        title += '&#10;vfs: ' + ' · '.join(f'{fmt_volts(v)} V' for v in vfs)
+    color = SPARK_STROKE.get(pad.get('result'), '#616161')
+    return _sparkline_svg(vrs, xs, color, title, vlo, vhi)
+
+def _spark_cell(spark):
+    return spark if spark else '<span class="c-muted">—</span>'
+
+SECTION_LABEL_STYLE = ('color:var(--tx-muted);font-size:10px;font-weight:600;'
+                       'letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;')
+
+def _result_class(p):
+    return {'GOOD': 'c-good', 'OPEN': 'c-open'}.get(p.get('result'), 'c-bad')
+
+def build_io_table_v2(pads, shape, ctx):
+    """IO pads table: DP | Role | Result | RR @<currents> | VR @<currents> |
+    Forward (only when some pad has forward data) | vr sparkline. Only pads
+    with STD data get rows (power pads are measured in the cap table); ring
+    iteration keeps DP ordering."""
+    by_dp = {p['dp']: p for p in pads}
+    currents = (ctx or {}).get('currentListUa') or [10, 100, 1000]
+    labels = [_fmt_ua(u) for u in currents]
+    thr = (ctx or {}).get('maxBondROhms')
+    std_pads = [p for p in pads if p.get('method', '').startswith('STD')]
+    has_fwd = any(p.get('rf') or p.get('vf') for p in std_pads)
+    vlo, vhi = _spark_yrange([p.get('vr') or [] for p in std_pads
+                              if p.get('result') != 'OPEN'])
+
+    head = '<tr><th>DP</th><th>Role</th><th>Result</th>'
+    head += ''.join(f'<th>RR @{l}</th>' for l in labels)
+    head += ''.join(f'<th>VR @{l}</th>' for l in labels)
+    if has_fwd:
+        head += '<th>Forward</th>'
+    head += f'<th>vr {vlo:.1f}–{vhi:.1f} V</th></tr>'
+
+    def row(pad_info, p):
+        dp, role = pad_info['dp'], pad_info['role']
+        abbr = ROLE_ABBR.get(role, role)
+        rr = p.get('rr') or []
+        vr = p.get('vr') or []
+        rr_cells = []
+        for i in range(len(currents)):
+            v = rr[i] if i < len(rr) else None
+            flag = ' class="c-flag"' if thr is not None and v is not None and v > thr else ''
+            rr_cells.append(f'<td{flag}>{fmt_ohms(v)}</td>')
+        vr_cells = ''.join(
+            f'<td>{fmt_volts(vr[i]) if i < len(vr) else "—"}</td>' for i in range(len(currents)))
+        if has_fwd:
+            rf, vf = p.get('rf'), p.get('vf')
+            if rf or vf:
+                lines = []
+                if rf:
+                    lines.append('RF ' + ' / '.join(fmt_ohms(v) for v in rf))
+                if vf:
+                    lines.append('VF ' + ' / '.join(fmt_volts(v) for v in vf) + ' V')
+                fwd_cell = f'<td><div class="fwd-cell">{"<br>".join(lines)}</div></td>'
+            else:
+                fwd_cell = '<td><span class="c-muted">—</span></td>'
+        else:
+            fwd_cell = ''
+        return (f'<tr><td>{dp}</td><td>{abbr}</td><td class="{_result_class(p)}">{p["result"]}</td>'
+                f'{"".join(rr_cells)}{vr_cells}{fwd_cell}'
+                f'<td>{_spark_cell(spark_vr(p, ctx, vlo, vhi))}</td></tr>')
+
+    rows = []
+    seen = set()
+    for pad_info in shape['ring']:
+        p = by_dp.get(pad_info['dp'])
+        if p is None or not p.get('method', '').startswith('STD'):
+            continue
+        seen.add(pad_info['dp'])
+        rows.append(row(pad_info, p))
+    # Out-of-ring STD pads (none in current data; guard only) — never dropped.
+    for dp in sorted(set(by_dp) - seen):
+        p = by_dp[dp]
+        if p.get('method', '').startswith('STD'):
+            rows.append(row({'dp': dp, 'role': p.get('role', IO)}, p))
+    return f'<table>\n<thead>{head}</thead>\n<tbody>\n' + '\n'.join(rows) + '\n</tbody>\n</table>'
+
+def build_cap_table_v2(pads, shape, ctx):
+    """Cap pads table: DP | Role | Result | VRS @<cap times> | curve. Column
+    headers come from the run's capTimeListUs (never hardcoded)."""
+    by_dp = {p['dp']: p for p in pads}
+    times = (ctx or {}).get('capTimeListUs') or []
+    cap_pads = [p for p in pads if p.get('method', '').startswith('CAP')]
+    vlo, vhi = _spark_yrange([p.get('vrs') or [] for p in cap_pads
+                              if p.get('result') != 'OPEN'])
+
+    head = '<tr><th>DP</th><th>Role</th><th>Result</th>'
+    head += ''.join(f'<th>VRS @{t:g}us</th>' for t in times)
+    head += f'<th>curve {vlo:.1f}–{vhi:.1f} V</th></tr>'
+
+    def row(pad_info, p):
+        dp, role = pad_info['dp'], pad_info['role']
+        abbr = ROLE_ABBR.get(role, role)
+        vrs = p.get('vrs') or []
+        vrs_cells = ''.join(
+            f'<td>{fmt_volts(vrs[i]) if i < len(vrs) else "—"}</td>' for i in range(len(times)))
+        return (f'<tr><td>{dp}</td><td>{abbr}</td><td class="{_result_class(p)}">{p["result"]}</td>'
+                f'{vrs_cells}<td>{_spark_cell(spark_cap(p, ctx, vlo, vhi))}</td></tr>')
+
+    rows = []
+    seen = set()
+    for pad_info in shape['ring']:
+        p = by_dp.get(pad_info['dp'])
+        if p is None or not p.get('method', '').startswith('CAP'):
+            continue
+        seen.add(pad_info['dp'])
+        rows.append(row(pad_info, p))
+    # Out-of-ring cap pads (none in current data; guard only) — never dropped.
+    for dp in sorted(set(by_dp) - seen):
+        p = by_dp[dp]
+        if p.get('method', '').startswith('CAP'):
+            rows.append(row({'dp': dp, 'role': p.get('role', PWR)}, p))
+    return f'<table>\n<thead>{head}</thead>\n<tbody>\n' + '\n'.join(rows) + '\n</tbody>\n</table>'
+
+def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
+    outcome = run['outcome']
+    n_pass = run['good']
+    n_fail = run['tested'] - run['good']
+    n_total = run['tested']
+    ts = ts_from_img(run.get('img')) or date_str
+    reason_html = f'<span style="color:var(--warn-fg);font-size:12px;">{run["reason"]}</span>' if run.get('reason') else ''
+    mismatch_html = ('<span class="badge" style="color:var(--warn-fg);background:rgba(240,168,48,0.12);">'
+                     '⚠ adapter layout mismatch</span>') if mismatch else ''
+
+    pads = run.get('pads', [])
+    ctx = run.get('context') or {}
+    n_io = sum(1 for p in pads if p.get('method', '').startswith('STD'))
+    n_cap = sum(1 for p in pads if p.get('method', '').startswith('CAP'))
+
+    svg_html = build_die_svg(pads, shape, run)
+
+    legend_html = '\n'.join(
+        f'<div class="legend-item"><div class="legend-swatch" style="background:{c}"></div><span>{lbl}</span></div>'
+        for c, lbl in LEGEND_ITEMS
+    )
+
+    io_section = ''
+    if n_io:
+        io_table = build_io_table_v2(pads, shape, ctx)
+        io_section = (f'<div class="section-label" style="{SECTION_LABEL_STYLE}">'
+                      f'IO pads — {n_io}</div>'
+                      f'<div class="tbl-wrap">{io_table}</div>')
+    cap_section = ''
+    if n_cap:
+        cap_table = build_cap_table_v2(pads, shape, ctx)
+        cap_section = (f'<div class="section-label" style="{SECTION_LABEL_STYLE}margin-top:18px;">'
+                       f'CAP pads — {n_cap}</div>'
+                       f'<div class="tbl-wrap">{cap_table}</div>')
+
+    # Context meta line, e.g. "build 2026-08-31-deefcff · STD+CAP · 10/100/1000 uA
+    # · cap 1250–20000 us · maxBondR 60.0 kΩ" — missing keys are omitted.
+    meta_bits = []
+    if ctx.get('testerBuild'):
+        meta_bits.append(f'build {ctx["testerBuild"]}')
+    methods = sorted({p['method'] for p in pads if p.get('method')})
+    if methods:
+        meta_bits.append('+'.join(methods))
+    if ctx.get('currentListUa'):
+        meta_bits.append('/'.join(f'{u:g}' for u in ctx['currentListUa']) + ' uA')
+    if ctx.get('capTimeListUs'):
+        meta_bits.append(f'cap {ctx["capTimeListUs"][0]:g}–{ctx["capTimeListUs"][-1]:g} us')
+    if ctx.get('maxBondROhms') is not None:
+        meta_bits.append(f'maxBondR {ctx["maxBondROhms"]/1000:.1f} kΩ')
+    meta_html = ('<br>' + ' · '.join(meta_bits)) if meta_bits else ''
+
+    die_max_w = 700 if shape['ar'] >= 1.5 else 520
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BondView — {panel_id} / {loc}</title>
+<style>{CSS}</style>
+</head>
+<body>
+<div class="page">
+{LOGO_HTML}
+<h1>{build_breadcrumb(crumbs)}</h1>
+<div class="sub">{shape['name']} &nbsp;·&nbsp; {ts}{meta_html}</div>
+<div class="outcome-row">
+  <span class="badge badge-{outcome}">{outcome}</span>
+  <span class="count-pass">{n_pass} pass</span> · <span class="count-fail">{n_fail} fail</span> · {n_total} tested
+  {reason_html}
+  {mismatch_html}
+</div>
+<div class="layout">
+  <div class="die-col" style="max-width:{die_max_w}px;">
+    {svg_html}
+    <div class="legend">{legend_html}</div>
+  </div>
+  <div>
+{io_section}
+{cap_section}
   </div>
 </div>
 {FOOTER_HTML}
@@ -596,9 +980,72 @@ def build_root_index(die_entries, sources):
 # ── Main ──────────────────────────────────────────────────────────────────────
 LOCS = {'R1C1','R1C2','R1C3','R1C4','R1C5','R2C1','R2C2','R2C3','R2C4','R2C5'}
 
+# New format: "<diename>-<yearweek>-<panelnr>-<position>", e.g. "AF02-630-000-R1C1".
+NEW_PANEL_ID_RE = re.compile(r'^([A-Za-z0-9]+)-(\d+)-(\d+)-(R\dC\d)$')
+# Old format, dash-separated: "<slot>-<position>", e.g. "JK0-R1C1".
+SLOT_LOC_RE = re.compile(r'^([A-Za-z0-9]+)-(R\dC\d)$')
+
+def parse_panel_tag(raw):
+    """Split a record's panel identifier into (die_key, panel_id, loc).
+
+    Accepts the old '<slot>_<loc>' tag format (e.g. "AF0_R1C1"), the old
+    dash-separated '<slot>-<loc>' format (e.g. "JK0-R1C1"), and the new
+    '<diename>-<yearweek>-<panelnr>-<position>' panel_id format (e.g.
+    "AF02-630-000-R1C1"). die_key is what shape_for_panel/die_for_panel
+    expect (the old slot, or the new diename); panel_id is the
+    display/grouping identifier for a single panel (unique per die+yearweek+panelnr).
+    Returns (None, None, None) if unparseable.
+    """
+    m = NEW_PANEL_ID_RE.match(raw)
+    if m:
+        diename, yearweek, panelnr, position = m.groups()
+        return diename, f'{diename}-{yearweek}-{panelnr}', position
+    m = SLOT_LOC_RE.match(raw)
+    if m:
+        slot, position = m.groups()
+        return slot, slot, position
+    sep = raw.rfind('_')
+    if sep == -1:
+        return None, None, None
+    slot = raw[:sep]
+    return slot, slot, raw[sep+1:]
+
+def is_new_format(run):
+    """Content-based format detection: new-format runs carry a context dict
+    and/or pads with a 'method' key (old-format pads never do). Detection
+    must not rely on panel_id style — 2026-07-22/23 already use new-style
+    panel_ids but old-format pads."""
+    return bool(run.get('context')) or any('method' in p for p in (run.get('pads') or []))
+
+def expand_input_paths(files):
+    """Expand file/directory/glob args into a sorted, deduped list of .jsonl paths.
+
+    Passing a single new file (instead of the full set) would make the root
+    index only show the dies present in that file, dropping links to dies
+    from dates not included in this run. Accepting directories and globs lets
+    callers always pass the whole data set (e.g. "data/" or "data/*.jsonl")
+    so the index stays complete.
+    """
+    expanded = []
+    for f in files:
+        p = Path(f)
+        if p.is_dir():
+            expanded.extend(Path(x) for x in glob.glob(str(p / '*.jsonl')))
+        elif any(c in f for c in '*?['):
+            expanded.extend(Path(x) for x in glob.glob(f))
+        else:
+            expanded.append(p)
+    seen = set()
+    unique = []
+    for p in expanded:
+        if p not in seen:
+            seen.add(p)
+            unique.append(p)
+    return sorted(unique, key=lambda p: p.stem)
+
 def main():
     parser = argparse.ArgumentParser(description='Generate per-COB HTML reports from JSONL test results, grouped by die then by test date.')
-    parser.add_argument('files', nargs='*', help='Paths to .jsonl files in order, one per test date. Defaults to all .jsonl in script directory sorted by name.')
+    parser.add_argument('files', nargs='*', help='Paths to .jsonl files, directories containing .jsonl files, or glob patterns (e.g. "data/*.jsonl"), sorted by name. Pass the full data set, not a single new file, or the root index will drop dies from dates not included in this run. Defaults to all .jsonl in script directory sorted by name.')
     parser.add_argument('-o', '--output', help='Output directory (default: reports/ next to this script)')
     args = parser.parse_args()
 
@@ -607,7 +1054,10 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if args.files:
-        paths = [Path(f) for f in args.files]
+        paths = expand_input_paths(args.files)
+        if not paths:
+            print('No .jsonl files matched.')
+            return
         missing = [p for p in paths if not p.exists()]
         if missing:
             for p in missing: print(f'File not found: {p}')
@@ -619,10 +1069,12 @@ def main():
             return
 
     def img_key(r):
-        m = re.search(r'(\d{8})T(\d{6})', r.get('img', ''))
+        m = re.search(r'(\d{8})T(\d{6})', r.get('img') or '')
         return m.group(0) if m else ''
 
-    # results_by_date[date_str][tag] = latest run for that tag within that date's file
+    # results_by_date[date_str][tag] = latest run for that tag within that date's file.
+    # Some rows have img: null (e.g. 2026-09-01 retries); when timestamps tie or are
+    # absent, the later line in the file is the later test.
     results_by_date = {}
     for path in paths:
         date_str = path.stem
@@ -630,13 +1082,15 @@ def main():
         with open(path) as f:
             records = [json.loads(l) for l in f if l.strip()]
         by_tag = {}
-        for r in records:
-            tag = r.get('tag') or ''
-            sep = tag.rfind('_')
-            if sep == -1: continue
-            if tag[sep+1:] not in LOCS: continue
-            by_tag.setdefault(tag, []).append(r)
-        results_by_date[date_str] = {tag: max(runs, key=img_key) for tag, runs in by_tag.items()}
+        for idx, r in enumerate(records):
+            tag = r.get('panel_id') or r.get('tag') or ''
+            _die_key, _panel_id, loc = parse_panel_tag(tag)
+            if loc not in LOCS: continue
+            by_tag.setdefault(tag, []).append((idx, r))
+        results_by_date[date_str] = {
+            tag: max(runs, key=lambda t: (img_key(t[1]), t[0]))[1]
+            for tag, runs in by_tag.items()
+        }
 
     # Group into die → date → [(panel_id, loc), ...]. A die can occupy multiple
     # panel slots, each with its own full set of locations, so slot+loc (not
@@ -644,14 +1098,15 @@ def main():
     dies = {}
     for date_str, by_tag in results_by_date.items():
         for tag, run in sorted(by_tag.items()):
-            sep = tag.rfind('_')
-            loc, panel_id = tag[sep+1:], tag[:sep]
-            shape = shape_for_panel(panel_id)
-            if not shape and run.get('pads'):
-                shape = shape_for_pad_count(len(run['pads']))
-            die_name = die_for_panel(panel_id)
+            die_key, panel_id, loc = parse_panel_tag(tag)
+            preferred = shape_for_panel(die_key)
+            if not preferred and run.get('pads'):
+                preferred = shape_for_pad_count(len(run['pads']))
+            shape, mismatch = shape_for_run(run, preferred)
+            die_name = die_for_panel(die_key)
             dies.setdefault(die_name, {}).setdefault(date_str, []).append({
                 'panel_id': panel_id, 'loc': loc, 'run': run, 'shape': shape,
+                'mismatch': mismatch,
             })
 
     root_label = out_dir.resolve().name
@@ -674,7 +1129,11 @@ def main():
                     (date_str, 'index.html'),
                     (f'{panel_id}_{loc}', None),
                 ]
-                html = build_html(panel_id, loc, run, shape, date_str, crumbs)
+                if is_new_format(run):
+                    html = build_html_v2(panel_id, loc, run, shape, date_str, crumbs,
+                                         mismatch=info['mismatch'])
+                else:
+                    html = build_html(panel_id, loc, run, shape, date_str, crumbs)
                 (date_dir / filename).write_text(html, encoding='utf-8')
                 n_pass = run['good']
                 n_fail = run['tested'] - n_pass
@@ -719,9 +1178,6 @@ def main():
     root_index_html = build_root_index(die_entries, sources)
     (out_dir / 'index.html').write_text(root_index_html, encoding='utf-8')
     print(f'\nGenerated {n_reports} reports across {len(die_entries)} dies in {out_dir}')
-
-if __name__ == '__main__':
-    main()
 
 if __name__ == '__main__':
     main()
