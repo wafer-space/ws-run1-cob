@@ -130,18 +130,18 @@ table.osum tr:hover td{background:color-mix(in srgb,var(--grid) 45%,transparent)
 <div class="wrap">
 <header>
   <h1>BRWN pad statistics</h1>
-  <p class="meta">2026-09-02.jsonl · 103 BRWN records → 100 panels (latest per panel; 3 retests excluded) · tester 6E834BA07F5A6B06 · adapter A070F26C030000A3 · builds 2026-09-02-be338eb</p>
+  <p class="meta">2026-09-02.jsonl · 103 BRWN records → 100 CoBs on 10 panels (latest per CoB; 3 retests excluded) · tester 6E834BA07F5A6B06 · adapter A070F26C030000A3 · builds 2026-09-02-be338eb</p>
   <div class="tiles">
-    <div class="tile"><b>100</b><span>panels (latest session)</span></div>
+    <div class="tile"><b>100</b><span>CoBs on 10 panels (latest session)</span></div>
     <div class="tile"><b>64</b><span>pads per die · 56 STD + 8 CAP</span></div>
     <div class="tile"><b id="t-flags">223</b><span>outlier flags (<span id="t-hilo">▲ 0 · ▼ 223</span>)</span></div>
     <div class="tile"><b id="t-pads">21</b><span>pads flagged of 64</span></div>
-    <div class="tile"><b id="t-panels">20</b><span>panels flagged of 100</span></div>
+    <div class="tile"><b id="t-panels">20</b><span>CoBs flagged of 100</span></div>
     <div class="tile"><b id="t-max">20</b><span>max flags on one pad</span></div>
   </div>
   <div class="note">
-    <strong>Method.</strong> One row per die pad (dp), one line per panel session — the latest session
-    per panel; all 100 latest sessions are PASS with no OPEN pads, so every flag is
+    <strong>Method.</strong> One row per die pad (dp), one line per CoB session — the latest session
+    per CoB; all 100 latest sessions are PASS with no OPEN pads, so every flag is
     statistical, not a bond failure.
     <ul>
       <li>Curves: per-session voltage vs sweep point on a log x-scale. STD pads: <span class="mono">vr</span> at
@@ -154,7 +154,7 @@ table.osum tr:hover td{background:color-mix(in srgb,var(--grid) 45%,transparent)
       Q1 − k·IQR / Q3 + k·IQR with the multiplier <strong>k selectable above</strong> (default 1.5,
       the classic Tukey fence; raise k for wider fences). Flagged sessions are drawn red with ring
       markers and listed per pad.</li>
-      <li>Hover any curve for panel id and values; click a map tile to jump to its row.</li>
+      <li>Hover any curve for CoB id and values; click a map tile to jump to its row.</li>
     </ul>
   </div>
 </header>
@@ -9058,16 +9058,16 @@ table.osum tr:hover td{background:color-mix(in srgb,var(--grid) 45%,transparent)
 </div>
 </article>
 
-<h2>Outlier summary by panel</h2>
-<p class="meta" style="margin-top:0" id="osum-meta">20 of 100 panels carry at least one flag;
+<h2>Outlier summary by CoB</h2>
+<p class="meta" style="margin-top:0" id="osum-meta">20 of 100 CoBs carry at least one flag;
 223 flags total (▲ 0 above fence · ▼ 223 below). Sorted by flag count.</p>
 <table class="osum">
-<thead><tr><th>Panel</th><th>Pads flagged</th><th>dp list</th></tr></thead>
+<thead><tr><th>CoB</th><th>Pads flagged</th><th>dp list</th></tr></thead>
 <tbody id="osum-body"><tr><td class='pid'>BRWN-636-001-R2C3</td><td class='n'>21</td><td class='dps'>0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 19, 27, 28, 29, 31, 32, 37, 46, 65, 69</td></tr><tr><td class='pid'>BRWN-636-000-R1C4</td><td class='n'>15</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 19, 27, 28, 32, 46</td></tr><tr><td class='pid'>BRWN-636-000-R2C2</td><td class='n'>14</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 19, 27, 28, 46</td></tr><tr><td class='pid'>BRWN-636-001-R1C2</td><td class='n'>14</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 19, 27, 28, 46</td></tr><tr><td class='pid'>BRWN-636-001-R2C1</td><td class='n'>13</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 19, 27, 28</td></tr><tr><td class='pid'>BRWN-636-001-R2C2</td><td class='n'>13</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 27, 28, 65</td></tr><tr><td class='pid'>BRWN-636-001-R2C4</td><td class='n'>13</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 27, 28, 46</td></tr><tr><td class='pid'>BRWN-636-000-R1C1</td><td class='n'>12</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R2C1</td><td class='n'>12</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R2C4</td><td class='n'>12</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 27, 28, 65</td></tr><tr><td class='pid'>BRWN-636-001-R2C5</td><td class='n'>12</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R2C5</td><td class='n'>11</td><td class='dps'>0, 2, 3, 4, 5, 6, 7, 9, 10, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R1C3</td><td class='n'>10</td><td class='dps'>0, 3, 4, 5, 6, 7, 9, 10, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R1C5</td><td class='n'>9</td><td class='dps'>3, 4, 5, 6, 7, 9, 10, 27, 28</td></tr><tr><td class='pid'>BRWN-636-000-R2C3</td><td class='n'>9</td><td class='dps'>0, 3, 4, 5, 6, 7, 10, 27, 28</td></tr><tr><td class='pid'>BRWN-636-001-R1C1</td><td class='n'>9</td><td class='dps'>0, 3, 4, 5, 6, 7, 10, 27, 28</td></tr><tr><td class='pid'>BRWN-636-001-R1C3</td><td class='n'>7</td><td class='dps'>0, 3, 4, 5, 6, 7, 10</td></tr><tr><td class='pid'>BRWN-636-001-R1C5</td><td class='n'>7</td><td class='dps'>4, 5, 6, 7, 9, 10, 28</td></tr><tr><td class='pid'>BRWN-636-000-R1C2</td><td class='n'>5</td><td class='dps'>0, 5, 6, 7, 10</td></tr><tr><td class='pid'>BRWN-636-001-R1C4</td><td class='n'>5</td><td class='dps'>4, 5, 6, 7, 10</td></tr></tbody>
 </table>
 
-<p class="foot">Generated from 2026-09-02.jsonl (BRWN-* records, latest session per panel) by
-<span class="mono">scripts/generate_pad_report.py</span>. Key metric: vr @ 1 mA for STD pads,
+<p class="foot">Generated from 2026-09-02.jsonl (BRWN-* records, latest session per CoB).
+Key metric: vr @ 1 mA for STD pads,
 vrs @ 20 ms for CAP pads; fences Q1 − k·IQR / Q3 + k·IQR per pad, k selectable 1.5–3.0 (default 1.5).</p>
 </div>
 <script>
@@ -9209,7 +9209,7 @@ function applyK(k){
     '<tr><td class=pid>'+D.full[i]+'</td><td class=n>'+dps.length+'</td><td class=dps>'
     +dps.sort((a,b)=>a-b).join(', ')+'</td></tr>').join('');
   document.getElementById('osum-meta').innerHTML=panelsF.size+' of '+D.panels.length
-    +' panels carry at least one flag; '+tot+' flags total (\u25b2 '+hi+' above fence \u00b7 \u25bc '
+    +' CoBs carry at least one flag; '+tot+' flags total (\u25b2 '+hi+' above fence \u00b7 \u25bc '
     +lo+' below). Sorted by flag count.';
   document.querySelectorAll('.ksel button').forEach(b=>b.classList.toggle('on',+b.dataset.k===k));
 }
