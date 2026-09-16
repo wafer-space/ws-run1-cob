@@ -58,7 +58,35 @@ SHAPES = {
             p(60,PWR),p(61,GND),p(62,IO),p(63,IO),p(64,IO),p(65,IO),
             p(66,IO),p(67,IO),p(68,IO),p(69,IO),p(70,VDD),p(71,BUS),
         ]
-    }
+    },
+    # MOSB: same 74-pad ring geometry as shape_1x1 but a completely different
+    # pinout (docs/DUT_PADMAP_MOSB.md) — roles must NOT be derived from the
+    # 1x1 map. Die pads 8/9 are VDD (bonded to the same adapter pin 70, so
+    # pad 9 is never tested), 17/36/54/73 are GND (54 is the only GND pad
+    # with a routed adapter pin). The MOSB board has no bypass capacitors —
+    # all 68 tested pads are STD.
+    'shape_1x1_mosb': {
+        'name': '1x1 MOSB', 'north': 17, 'east': 20, 'south': 17, 'west': 20, 'ar': 0.85,
+        'ring': [
+            p(dp, GND if dp in (17, 36, 54, 73) else
+                  VDD if dp in (8, 9) else IO)
+            for dp in range(74)
+        ]
+    },
+    # 0p5x1: mirror counterpart of shape_1x0p5 (same 72-pad ring: 56 IO +
+    # 8 GND + 8 VDD) rotated to portrait — 8 pads on the north/south sides,
+    # 28 on each of east/west (die 1.94 x 5.12 mm, aspect 0.38). Pinout from
+    # docs/DUT_PADMAP_0P5X1.md, where the VCC pads are labelled VDDIO; GND
+    # pads 3 and 40 are DUT-GND-plane-only. All 8 VDD pads carry bypass caps
+    # (CAP_SENSE) — the data's CAP pads must land exactly on the VDD dps.
+    'shape_0p5x1': {
+        'name': '0p5x1 Mezzanine70', 'north': 8, 'east': 28, 'south': 8, 'west': 28, 'ar': 0.38,
+        'ring': [
+            p(dp, GND if dp in (3, 10, 21, 32, 40, 47, 58, 68) else
+                  VDD if dp in (4, 11, 22, 33, 39, 46, 57, 67) else IO)
+            for dp in range(72)
+        ]
+    },
 }
 
 # Keyed by exact die_key (old-format slot, e.g. "AF0", or new-format full die
@@ -78,10 +106,13 @@ PANEL_SHAPE = {
     'AF02': 'shape_1x1',
     'BRWN': 'shape_1x1',
     'ISHI': 'shape_1x1',
+    'JKU1': 'shape_1x1',       # pad map 2 (1x1 Mezzanine70 v2) — same pinout as shape_1x1
     'GD04': 'shape_1x0p5',
     'JKU2': 'shape_1x0p5',
     'OCD2': 'shape_1x0p5',
     'TQVC': 'shape_1x0p5',
+    'MOSB': 'shape_1x1_mosb',  # pad map 4 — 1x1 geometry, MOSB pinout
+    'GD02': 'shape_0p5x1',     # pad map 5
 }
 
 # Maps the internal panel slot ID (as used in the raw tag, e.g. "AF0") to the
@@ -441,6 +472,17 @@ def ts_from_img(img):
     d, t = m.group(1), m.group(2)
     return f"{d[:4]}-{d[4:6]}-{d[6:8]} {t[:2]}:{t[2:4]}:{t[4:6]}"
 
+def ts_from_run(run, date_str):
+    """Display timestamp: the explicit 'ts' field (ISO 8601, present on
+    new-format rows since 2026-09-15) wins over the second-resolution
+    timestamp recovered from the 'img' filename; falls back to the file's
+    date."""
+    ts = run.get('ts')
+    if ts:
+        m = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})', ts)
+        return f'{m.group(1)} {m.group(2)}' if m else ts
+    return ts_from_img(run.get('img')) or date_str
+
 def build_table(pads, shape):
     by_dp = {p['dp']: p for p in pads}
     rows = []
@@ -470,7 +512,7 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
     n_pass = run['good']
     n_fail = run['tested'] - run['good']
     n_total = run['tested']
-    ts = ts_from_img(run.get('img')) or date_str
+    ts = ts_from_run(run, date_str)
     reason_html = f'<span style="color:var(--warn-fg);font-size:12px;">{run["reason"]}</span>' if run.get('reason') else ''
 
     svg_html = build_die_svg(run.get('pads', []), shape, run)
@@ -720,7 +762,7 @@ def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
     n_pass = run['good']
     n_fail = run['tested'] - run['good']
     n_total = run['tested']
-    ts = ts_from_img(run.get('img')) or date_str
+    ts = ts_from_run(run, date_str)
     reason_html = f'<span style="color:var(--warn-fg);font-size:12px;">{run["reason"]}</span>' if run.get('reason') else ''
     mismatch_html = ('<span class="badge" style="color:var(--warn-fg);background:rgba(240,168,48,0.12);">'
                      '⚠ adapter layout mismatch</span>') if mismatch else ''
@@ -831,7 +873,9 @@ footer a:hover{color:#7fb7eb;}
 h1{color:var(--tx-primary);font-size:20px;font-weight:600;margin-bottom:4px;}
 h1 a{color:var(--tx-primary);text-decoration:none;}
 h1 a:hover{color:#7fb7eb;}
-.meta{color:var(--tx-muted);font-size:12px;margin-bottom:32px;font-family:'SF Mono','Menlo',monospace;}
+/* padding-right keeps long source lists clear of the absolutely positioned
+   logo (44px tall, 3.75:1 aspect → ~165px wide) in the top-right corner. */
+.meta{color:var(--tx-muted);font-size:12px;margin-bottom:32px;padding-right:200px;font-family:'SF Mono','Menlo',monospace;}
 ul{list-style:none;}
 li{border-bottom:1px solid var(--line);padding:10px 0;}
 ul a{color:var(--tx-primary);text-decoration:none;font-family:'SF Mono','Menlo',monospace;font-size:13px;}
@@ -1069,6 +1113,11 @@ def main():
             return
 
     def img_key(r):
+        # New-format rows carry an explicit 'ts' (millisecond resolution);
+        # prefer it over the 1 s resolution of the 'img' filename.
+        ts = r.get('ts')
+        if ts:
+            return ts
         m = re.search(r'(\d{8})T(\d{6})', r.get('img') or '')
         return m.group(0) if m else ''
 

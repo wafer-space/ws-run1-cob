@@ -31,7 +31,9 @@ footer a:hover{color:#7fb7eb;}
 h1{color:var(--tx-primary);font-size:20px;font-weight:600;margin-bottom:4px;}
 h1 a{color:var(--tx-primary);text-decoration:none;}
 h1 a:hover{color:#7fb7eb;}
-.meta{color:var(--tx-muted);font-size:12px;margin-bottom:32px;font-family:'SF Mono','Menlo',monospace;}
+/* padding-right keeps long source lists clear of the absolutely positioned
+   logo (44px tall, 3.75:1 aspect → ~165px wide) in the top-right corner. */
+.meta{color:var(--tx-muted);font-size:12px;margin-bottom:32px;padding-right:200px;font-family:'SF Mono','Menlo',monospace;}
 ul{list-style:none;}
 li{border-bottom:1px solid var(--line);padding:10px 0;}
 ul a{color:var(--tx-primary);text-decoration:none;font-family:'SF Mono','Menlo',monospace;font-size:13px;}
