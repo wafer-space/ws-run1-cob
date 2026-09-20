@@ -87,6 +87,34 @@ SHAPES = {
             for dp in range(72)
         ]
     },
+    # TQVA: portrait die 1936 x 2531 um (docs/DUT_PADMAP_TQVA.md). Die pad 0
+    # at the top-right corner, numbers increase counter-clockwise: 11 pads on
+    # each N/S side, 18 on each E/W side (58 slots = 56 known die pads 0..55
+    # + 2 unaccounted GND pads, recorded here as dp 56/57 — they sit between
+    # die pads 17/18 and 24/25 and are never tested). VDD pads 3/27/35 (VDDIO)
+    # and 41 (VDD_CORE) all carry bypass caps — the data's CAP pads must land
+    # exactly on those dps.
+    'shape_tqva': {
+        'name': 'TQVA Mezzanine70', 'north': 11, 'east': 18, 'south': 11, 'west': 18, 'ar': 0.765,
+        'ring': (
+            [p(dp, GND if dp == 2 else
+                  VDD if dp == 3 else IO) for dp in range(11)] +
+            # west: die pads 11..26 with the 2 extra GND slots
+            [p(dp, IO) for dp in range(11, 18)] +
+            [p(56, GND)] +
+            [p(dp, IO) for dp in range(18, 24)] +
+            [p(57, GND)] +
+            [p(24, IO), p(25, IO), p(26, GND)] +
+            # south: die pads 27..37
+            [p(27, VDD), p(28, IO), p(29, IO), p(30, IO), p(31, IO), p(32, IO),
+             p(33, NC), p(34, NC), p(35, VDD), p(36, GND), p(37, NC)] +
+            # east: die pads 38..55
+            [p(38, NC), p(39, IO), p(40, IO), p(41, VCORE), p(42, GND),
+             p(43, NC), p(44, NC)] +
+            [p(dp, IO) for dp in range(45, 51)] +
+            [p(dp, NC) for dp in range(51, 56)]
+        ),
+    },
 }
 
 # Keyed by exact die_key (old-format slot, e.g. "AF0", or new-format full die
@@ -113,6 +141,7 @@ PANEL_SHAPE = {
     'TQVC': 'shape_1x0p5',
     'MOSB': 'shape_1x1_mosb',  # pad map 4 — 1x1 geometry, MOSB pinout
     'GD02': 'shape_0p5x1',     # pad map 5
+    'TQVA': 'shape_tqva',      # pad map 6 — portrait die, own pinout
 }
 
 # Maps the internal panel slot ID (as used in the raw tag, e.g. "AF0") to the
