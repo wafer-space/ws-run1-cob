@@ -218,11 +218,11 @@ def shape_for_run(run, preferred):
 PS, SP, GP, MG = 18, 2, 4, 14
 
 PAD_COLORS = {
-    'GOOD':              '#4CAF50',
-    'SHORT_TO_GND':      '#e2554f',
-    'OPEN':              '#c06010',
+    'GOOD':              '#3D9641',
+    'SHORT_TO_GND':      '#d93025',
+    'OPEN':              '#d93025',
     'SHORT_TO_NEIGHBOR': '#9a8800',
-    'OTHER':             '#616161',
+    'OTHER':             '#9aa0a6',
 }
 
 def fault_type(result):
@@ -286,6 +286,91 @@ def pad_tooltip(pad_info, result, ctx=None):
             if arr:
                 tt += f'&#10;{key}: ' + ' / '.join(fmt(v) for v in arr) + unit
     return tt
+
+ASSETS_DIR = Path(__file__).resolve().parent.parent / 'assets'
+
+def load_die_render(die_name):
+    """Load the die render metadata for a die name (e.g. "JKU1") from
+    assets/<die>.json. Returns (width_px, height_px, {pad_number: pad}) or
+    None when the die has no render asset."""
+    path = ASSETS_DIR / f'{die_name}.json'
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return None
+    pads_by_num = {p['number']: p for p in data.get('pads', [])}
+    img = data.get('image') or {}
+    w, h = img.get('width_px'), img.get('height_px')
+    if not w or not h or not pads_by_num:
+        return None
+    return w, h, pads_by_num
+
+def build_die_render_svg(pads, shape, run, render, assets_href, die_name):
+    """Die visualization using the actual die render photo as the die body,
+    with result-colored pads overlaid at their real positions from the
+    render's pad-location data."""
+    w, h, pads_by_num = render
+    by_dp = {p['dp']: p for p in pads}
+
+    # Fade the photo toward white so the bright gold die shot reads as a quiet
+    # backdrop: white wash + a cool tint to cancel the yellow cast, while the
+    # die traces stay faintly visible. Tune the two fill-opacity values to
+    # adjust the fade strength / coolness.
+    fade_rects = (
+        f'<rect x="0" y="0" width="{w}" height="{h}" fill="#ffffff" fill-opacity="0.55"/>'
+        f'<rect x="0" y="0" width="{w}" height="{h}" fill="#8a9ec2" fill-opacity="0.18"/>'
+    )
+
+    lines = [f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" '
+             f'class="die-render">']
+    lines.append(f'<image href="{assets_href}/{die_name}.png" x="0" y="0" '
+                 f'width="{w}" height="{h}" preserveAspectRatio="xMidYMid meet"/>')
+    lines.append(fade_rects)
+
+    # Per-pad spacing to the nearest neighbour — used to keep the oversized
+    # pad boxes from overlapping badly on small dies (dense pitch), while
+    # sparse dies (1x1) get the full 2.5x size.
+    def pitch_of(rp):
+        best = None
+        for q in pads_by_num.values():
+            if q is rp:
+                continue
+            d = max(abs(q['cx_px'] - rp['cx_px']), abs(q['cy_px'] - rp['cy_px']))
+            if best is None or d < best:
+                best = d
+        return best or 0.0
+
+    pitch = {n: pitch_of(rp) for n, rp in pads_by_num.items()}
+
+    for pad_info in shape['ring']:
+        rp = pads_by_num.get(pad_info['dp'])
+        if rp is None:
+            continue   # ring pad with no position in the render — skip
+        result = by_dp.get(pad_info['dp'])
+        color = pad_color(pad_info, result)
+        cx, cy = rp['cx_px'], rp['cy_px']
+        # Oversized box centred on the pad — the physical pad footprint is
+        # too small to see at report display size, so overlap is fine. The
+        # box is capped at 85% of the pad pitch so dense small dies stay
+        # readable.
+        maxdim = max(rp['x1_px'] - rp['x0_px'], rp['y1_px'] - rp['y0_px'])
+        side = max(maxdim * 2.5, 1.2 * maxdim)
+        side = min(side, 0.85 * pitch[pad_info['dp']])
+        x0, y0 = cx - side / 2, cy - side / 2
+        pw = ph = side
+        fs = max(26, side * 0.42)
+        text_fill = '#000' if is_light(color) else '#fff'
+        tt = pad_tooltip(pad_info, result, run.get('context') if run else None)
+        lines.append('<g>')
+        lines.append(f'  <rect x="{x0:.1f}" y="{y0:.1f}" width="{pw:.1f}" height="{ph:.1f}" fill="{color}" fill-opacity="0.9" stroke="#222" stroke-width="1"/>')
+        lines.append(f'  <text x="{x0+pw/2:.1f}" y="{y0+ph/2+fs*0.38:.1f}" text-anchor="middle" font-family="monospace" font-size="{fs:.1f}" fill="{text_fill}" pointer-events="none">{pad_info["dp"]}</text>')
+        lines.append(f'  <title>{tt}</title>')
+        lines.append('</g>')
+
+    lines.append('</svg>')
+    return '\n'.join(lines)
 
 def build_die_svg(pads, shape, run):
     nc, ec, sc, wc = shape['north'], shape['east'], shape['south'], shape['west']
@@ -427,7 +512,7 @@ h1 a:hover{color:#7fb7eb;}
 .count-pass{color:var(--pass-fg);font-weight:600;}
 .count-fail{color:var(--fail-fg);font-weight:600;}
 .layout{display:flex;flex-direction:column;gap:24px;margin-top:16px;}
-.die-col svg{display:block;width:100%;height:auto;}
+.die-col svg{display:block;width:100%;height:auto;max-height:720px;}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .legend-item{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--tx-muted);}
 .legend-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
@@ -438,8 +523,8 @@ tbody tr{border-bottom:1px solid var(--line);}
 tbody tr:hover{background:rgba(255,255,255,0.03);}
 td{padding:4px 7px;color:var(--tx-second);}
 .c-good{color:#4CAF50;font-weight:600;}
-.c-bad{color:#e2554f;font-weight:600;}
-.c-open{color:#c06010;font-weight:600;}
+.c-bad{color:#d93025;font-weight:600;}
+.c-open{color:#d93025;font-weight:600;}
 .c-neighbor{color:#9a8800;font-weight:600;}
 .c-flag{color:var(--warn-fg);font-size:10px;}
 .c-muted{color:var(--tx-faint);}
@@ -464,11 +549,10 @@ td{padding:4px 7px;color:var(--tx-second);}
 """
 
 LEGEND_ITEMS = [
-    ('#4CAF50', 'GOOD'),
-    ('#e2554f', 'SHORT TO GND'),
-    ('#c06010', 'OPEN'),
+    ('#3D9641', 'GOOD'),
+    ('#d93025', 'SHORT TO GND / OPEN'),
     ('#9a8800', 'SHORT TO NEIGHBOR'),
-    ('#616161', 'GND / NC / Untested'),
+    ('#9aa0a6', 'GND / NC / Untested'),
 ]
 
 def fmt_ohms(v):
@@ -536,7 +620,15 @@ def build_breadcrumb(crumbs):
     """crumbs: list of (label, href_or_None) pairs; the current page should have href=None."""
     return ' / '.join(f'<a href="{href}">{label}</a>' if href else label for label, href in crumbs)
 
-def build_html(panel_id, loc, run, shape, date_str, crumbs):
+def build_die_visual(pads, shape, run, die_name, assets_href):
+    """Die visualization for a page: the actual die render with overlaid
+    results when the die has a render asset, otherwise the SVG box fallback."""
+    render = load_die_render(die_name)
+    if render:
+        return build_die_render_svg(pads, shape, run, render, assets_href, die_name)
+    return build_die_svg(pads, shape, run)
+
+def build_html(panel_id, loc, run, shape, date_str, crumbs, assets_href='../../assets', die_name=None):
     outcome = run['outcome']
     n_pass = run['good']
     n_fail = run['tested'] - run['good']
@@ -544,7 +636,8 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
     ts = ts_from_run(run, date_str)
     reason_html = f'<span style="color:var(--warn-fg);font-size:12px;">{run["reason"]}</span>' if run.get('reason') else ''
 
-    svg_html = build_die_svg(run.get('pads', []), shape, run)
+    svg_html = build_die_visual(run.get('pads', []), shape, run,
+                                die_name or die_for_panel(panel_id), assets_href)
 
     legend_html = '\n'.join(
         f'<div class="legend-item"><div class="legend-swatch" style="background:{c}"></div><span>{lbl}</span></div>'
@@ -553,7 +646,11 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
 
     table_rows = build_table(run.get('pads', []), shape)
 
-    die_max_w = 700 if shape['ar'] >= 1.5 else 520
+    ar = shape['ar']
+    render = load_die_render(die_name or die_for_panel(panel_id))
+    if render:
+        ar = render[0] / render[1]
+    die_max_w = min(700 if ar >= 1.5 else 520, 720 * ar)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -574,7 +671,7 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
   {reason_html}
 </div>
 <div class="layout">
-  <div class="die-col" style="max-width:{die_max_w}px;">
+  <div class="die-col" style="width:{die_max_w:.0f}px;max-width:100%;margin:0 auto;">
     {svg_html}
     <div class="legend">{legend_html}</div>
   </div>
@@ -595,7 +692,7 @@ def build_html(panel_id, loc, run, shape, date_str, crumbs):
 
 # ── New-format (v2) report page ───────────────────────────────────────────────
 SPARK_W, SPARK_H, SPARK_PAD = 90, 24, 3
-SPARK_STROKE = {'GOOD': '#4CAF50', 'OPEN': '#c06010'}   # literal hex: SVG attrs can't use CSS vars
+SPARK_STROKE = {'GOOD': '#4CAF50', 'OPEN': '#d93025'}   # literal hex: SVG attrs can't use CSS vars
 SPARK_VLO, SPARK_VHI = 0.3, 1.0   # default y window (V); charts with data outside get their own range
 
 def _log_xs(vals):
@@ -786,7 +883,7 @@ def build_cap_table_v2(pads, shape, ctx):
             rows.append(row({'dp': dp, 'role': p.get('role', PWR)}, p))
     return f'<table>\n<thead>{head}</thead>\n<tbody>\n' + '\n'.join(rows) + '\n</tbody>\n</table>'
 
-def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
+def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False, assets_href='../../assets', die_name=None):
     outcome = run['outcome']
     n_pass = run['good']
     n_fail = run['tested'] - run['good']
@@ -801,7 +898,8 @@ def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
     n_io = sum(1 for p in pads if p.get('method', '').startswith('STD'))
     n_cap = sum(1 for p in pads if p.get('method', '').startswith('CAP'))
 
-    svg_html = build_die_svg(pads, shape, run)
+    svg_html = build_die_visual(pads, shape, run,
+                                die_name or die_for_panel(panel_id), assets_href)
 
     legend_html = '\n'.join(
         f'<div class="legend-item"><div class="legend-swatch" style="background:{c}"></div><span>{lbl}</span></div>'
@@ -837,7 +935,11 @@ def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
         meta_bits.append(f'maxBondR {ctx["maxBondROhms"]/1000:.1f} kΩ')
     meta_html = ('<br>' + ' · '.join(meta_bits)) if meta_bits else ''
 
-    die_max_w = 700 if shape['ar'] >= 1.5 else 520
+    ar = shape['ar']
+    render = load_die_render(die_name or die_for_panel(panel_id))
+    if render:
+        ar = render[0] / render[1]
+    die_max_w = min(700 if ar >= 1.5 else 520, 720 * ar)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -859,7 +961,7 @@ def build_html_v2(panel_id, loc, run, shape, date_str, crumbs, mismatch=False):
   {mismatch_html}
 </div>
 <div class="layout">
-  <div class="die-col" style="max-width:{die_max_w}px;">
+  <div class="die-col" style="width:{die_max_w:.0f}px;max-width:100%;margin:0 auto;">
     {svg_html}
     <div class="legend">{legend_html}</div>
   </div>
@@ -1184,7 +1286,7 @@ def main():
             die_name = die_for_panel(die_key)
             dies.setdefault(die_name, {}).setdefault(date_str, []).append({
                 'panel_id': panel_id, 'loc': loc, 'run': run, 'shape': shape,
-                'mismatch': mismatch,
+                'mismatch': mismatch, 'die_name': die_name,
             })
 
     root_label = out_dir.resolve().name
@@ -1200,6 +1302,7 @@ def main():
             items_sorted = sorted(items, key=lambda it: (it['panel_id'], it['loc']))
             for info in items_sorted:
                 panel_id, loc, run, shape = info['panel_id'], info['loc'], info['run'], info['shape']
+                die_name = info['die_name']
                 filename = f'{panel_id}_{loc}.html'
                 crumbs = [
                     (root_label, '../../index.html'),
@@ -1209,9 +1312,13 @@ def main():
                 ]
                 if is_new_format(run):
                     html = build_html_v2(panel_id, loc, run, shape, date_str, crumbs,
-                                         mismatch=info['mismatch'])
+                                         mismatch=info['mismatch'],
+                                         assets_href=os.path.relpath(ASSETS_DIR, date_dir),
+                                         die_name=die_name)
                 else:
-                    html = build_html(panel_id, loc, run, shape, date_str, crumbs)
+                    html = build_html(panel_id, loc, run, shape, date_str, crumbs,
+                                      assets_href=os.path.relpath(ASSETS_DIR, date_dir),
+                                      die_name=die_name)
                 (date_dir / filename).write_text(html, encoding='utf-8')
                 n_pass = run['good']
                 n_fail = run['tested'] - n_pass

@@ -40,7 +40,7 @@ h1 a:hover{color:#7fb7eb;}
 .count-pass{color:var(--pass-fg);font-weight:600;}
 .count-fail{color:var(--fail-fg);font-weight:600;}
 .layout{display:flex;flex-direction:column;gap:24px;margin-top:16px;}
-.die-col svg{display:block;width:100%;height:auto;}
+.die-col svg{display:block;width:100%;height:auto;max-height:720px;}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .legend-item{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--tx-muted);}
 .legend-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
@@ -51,8 +51,8 @@ tbody tr{border-bottom:1px solid var(--line);}
 tbody tr:hover{background:rgba(255,255,255,0.03);}
 td{padding:4px 7px;color:var(--tx-second);}
 .c-good{color:#4CAF50;font-weight:600;}
-.c-bad{color:#e2554f;font-weight:600;}
-.c-open{color:#c06010;font-weight:600;}
+.c-bad{color:#d93025;font-weight:600;}
+.c-open{color:#d93025;font-weight:600;}
 .c-neighbor{color:#9a8800;font-weight:600;}
 .c-flag{color:var(--warn-fg);font-size:10px;}
 .c-muted{color:var(--tx-faint);}
@@ -88,309 +88,295 @@ td{padding:4px 7px;color:var(--tx-second);}
   
 </div>
 <div class="layout">
-  <div class="die-col" style="max-width:520px;">
-    <svg viewBox="0 0 345.9 430.0" xmlns="http://www.w3.org/2000/svg">
-<rect class="die-body" x="36.0" y="36.0" width="273.9" height="358.0" rx="6" fill="#2e2e2e" stroke="#555" stroke-width="1.5"/>
-<circle cx="300.9" cy="45.0" r="4.0" fill="#ffffff"/>
-<rect class="die-badge-rect" x="150.9" y="193.0" width="44" height="44" rx="6" fill="#143524" stroke="#3ad17a" stroke-width="1.5"/>
-<text class="die-badge-text" x="172.9" y="207.0" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="#3ad17a">PASS</text>
-<text class="die-badge-text" x="172.9" y="227.0" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#3ad17a">41</text>
+  <div class="die-col" style="width:520px;max-width:100%;margin:0 auto;">
+    <svg viewBox="0 0 1566 2048" xmlns="http://www.w3.org/2000/svg" class="die-render">
+<image href="../../assets/TQVA.png" x="0" y="0" width="1566" height="2048" preserveAspectRatio="xMidYMid meet"/>
+<rect x="0" y="0" width="1566" height="2048" fill="#ffffff" fill-opacity="0.55"/><rect x="0" y="0" width="1566" height="2048" fill="#8a9ec2" fill-opacity="0.18"/>
 <g>
-  <rect x="263.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="272.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">0</text>
+  <rect x="1167.9" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1203.6" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">0</text>
   <title>DP 0 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 48.1 kΩ / 5.9 kΩ / 900 Ω&#10;vr: 0.484 / 0.584 / 0.876 V</title>
 </g>
 <g>
-  <rect x="243.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="252.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">1</text>
+  <rect x="1083.7" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1119.5" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">1</text>
   <title>DP 1 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 869 Ω&#10;vr: 0.533 / 0.609 / 0.853 V</title>
 </g>
 <g>
-  <rect x="223.9" y="14.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="232.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">2</text>
+  <rect x="999.6" y="11.2" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1035.4" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">2</text>
   <title>DP 2 [GND]&#10;(untested)</title>
 </g>
 <g>
-  <rect x="203.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="212.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">3</text>
+  <rect x="915.5" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="951.2" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">3</text>
   <title>DP 3 [VDDIO]&#10;Result: GOOD · CAP_REV&#10;cap vrs: 0.332 / 0.392 / 0.618 / 0.603 / 0.603 V</title>
 </g>
 <g>
-  <rect x="183.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="192.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">4</text>
+  <rect x="831.4" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="867.1" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">4</text>
   <title>DP 4 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 51.1 kΩ / 6.0 kΩ / 863 Ω&#10;vr: 0.509 / 0.591 / 0.849 V</title>
 </g>
 <g>
-  <rect x="163.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="172.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">5</text>
+  <rect x="747.2" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="783.0" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">5</text>
   <title>DP 5 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 893 Ω&#10;vr: 0.533 / 0.607 / 0.871 V</title>
 </g>
 <g>
-  <rect x="143.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="152.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">6</text>
+  <rect x="663.1" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="698.9" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">6</text>
   <title>DP 6 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.0 kΩ / 6.1 kΩ / 873 Ω&#10;vr: 0.533 / 0.604 / 0.857 V</title>
 </g>
 <g>
-  <rect x="123.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="132.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">7</text>
+  <rect x="579.0" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="614.8" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">7</text>
   <title>DP 7 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.1 kΩ / 869 Ω&#10;vr: 0.532 / 0.604 / 0.853 V</title>
 </g>
 <g>
-  <rect x="103.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="112.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">8</text>
+  <rect x="494.9" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="530.6" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">8</text>
   <title>DP 8 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.5 kΩ / 6.1 kΩ / 870 Ω&#10;vr: 0.529 / 0.603 / 0.854 V</title>
 </g>
 <g>
-  <rect x="83.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="92.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">9</text>
+  <rect x="410.8" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="446.5" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">9</text>
   <title>DP 9 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.2 kΩ / 898 Ω&#10;vr: 0.532 / 0.607 / 0.874 V</title>
 </g>
 <g>
-  <rect x="63.9" y="14.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="72.9" y="25.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">10</text>
+  <rect x="326.6" y="11.2" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="362.4" y="58.3" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">10</text>
   <title>DP 10 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.1 kΩ / 867 Ω&#10;vr: 0.532 / 0.604 / 0.853 V</title>
 </g>
 <g>
-  <rect x="14.0" y="36.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="47.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">11</text>
+  <rect x="11.8" y="328.6" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="374.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">11</text>
   <title>DP 11 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 50.5 kΩ / 6.0 kΩ / 874 Ω&#10;vr: 0.504 / 0.589 / 0.857 V</title>
 </g>
 <g>
-  <rect x="14.0" y="56.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="67.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">12</text>
+  <rect x="11.8" y="411.2" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="457.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">12</text>
   <title>DP 12 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.7 kΩ / 6.1 kΩ / 867 Ω&#10;vr: 0.531 / 0.604 / 0.853 V</title>
 </g>
 <g>
-  <rect x="14.0" y="76.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="87.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">13</text>
+  <rect x="11.8" y="493.7" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="540.0" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">13</text>
   <title>DP 13 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.7 kΩ / 6.1 kΩ / 863 Ω&#10;vr: 0.531 / 0.604 / 0.849 V</title>
 </g>
 <g>
-  <rect x="14.0" y="96.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="107.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">14</text>
+  <rect x="11.8" y="576.2" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="622.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">14</text>
   <title>DP 14 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.2 kΩ / 865 Ω&#10;vr: 0.532 / 0.607 / 0.851 V</title>
 </g>
 <g>
-  <rect x="14.0" y="116.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="127.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">15</text>
+  <rect x="11.8" y="658.8" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="705.1" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">15</text>
   <title>DP 15 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 881 Ω&#10;vr: 0.533 / 0.607 / 0.862 V</title>
 </g>
 <g>
-  <rect x="14.0" y="136.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="147.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">16</text>
+  <rect x="11.8" y="741.3" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="787.6" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">16</text>
   <title>DP 16 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.0 kΩ / 6.1 kΩ / 865 Ω&#10;vr: 0.533 / 0.604 / 0.851 V</title>
 </g>
 <g>
-  <rect x="14.0" y="156.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="167.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">17</text>
+  <rect x="11.8" y="823.9" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="870.1" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">17</text>
   <title>DP 17 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.2 kΩ / 6.2 kΩ / 872 Ω&#10;vr: 0.535 / 0.608 / 0.856 V</title>
 </g>
 <g>
-  <rect x="14.0" y="176.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="187.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">56</text>
-  <title>DP 56 [GND]&#10;(untested)</title>
-</g>
-<g>
-  <rect x="14.0" y="196.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="207.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">18</text>
+  <rect x="11.8" y="906.4" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="952.7" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">18</text>
   <title>DP 18 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.2 kΩ / 6.2 kΩ / 873 Ω&#10;vr: 0.535 / 0.605 / 0.857 V</title>
 </g>
 <g>
-  <rect x="14.0" y="216.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="227.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">19</text>
+  <rect x="11.8" y="988.9" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1035.2" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">19</text>
   <title>DP 19 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 883 Ω&#10;vr: 0.533 / 0.606 / 0.864 V</title>
 </g>
 <g>
-  <rect x="14.0" y="236.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="247.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">20</text>
+  <rect x="11.8" y="1071.5" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1117.7" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">20</text>
   <title>DP 20 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.2 kΩ / 6.2 kΩ / 863 Ω&#10;vr: 0.535 / 0.607 / 0.849 V</title>
 </g>
 <g>
-  <rect x="14.0" y="256.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="267.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">21</text>
+  <rect x="11.8" y="1154.0" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1200.3" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">21</text>
   <title>DP 21 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.2 kΩ / 866 Ω&#10;vr: 0.532 / 0.608 / 0.852 V</title>
 </g>
 <g>
-  <rect x="14.0" y="276.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="287.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">22</text>
+  <rect x="11.8" y="1236.5" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1282.8" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">22</text>
   <title>DP 22 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 856 Ω&#10;vr: 0.533 / 0.606 / 0.845 V</title>
 </g>
 <g>
-  <rect x="14.0" y="296.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="307.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">23</text>
+  <rect x="11.8" y="1319.1" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1365.3" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">23</text>
   <title>DP 23 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.1 kΩ / 6.2 kΩ / 866 Ω&#10;vr: 0.534 / 0.607 / 0.852 V</title>
 </g>
 <g>
-  <rect x="14.0" y="316.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="327.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">57</text>
-  <title>DP 57 [GND]&#10;(untested)</title>
-</g>
-<g>
-  <rect x="14.0" y="336.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="347.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">24</text>
+  <rect x="11.8" y="1401.6" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1447.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">24</text>
   <title>DP 24 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.2 kΩ / 864 Ω&#10;vr: 0.532 / 0.606 / 0.850 V</title>
 </g>
 <g>
-  <rect x="14.0" y="356.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="367.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">25</text>
+  <rect x="11.8" y="1484.1" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1530.4" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">25</text>
   <title>DP 25 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.0 kΩ / 6.2 kΩ / 866 Ω&#10;vr: 0.533 / 0.608 / 0.852 V</title>
 </g>
 <g>
-  <rect x="14.0" y="376.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="23.0" y="387.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">26</text>
+  <rect x="11.8" y="1566.7" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1612.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">26</text>
   <title>DP 26 [GND]&#10;(untested)</title>
 </g>
 <g>
-  <rect x="63.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="72.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">27</text>
+  <rect x="11.8" y="1649.2" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="46.9" y="1695.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">27</text>
   <title>DP 27 [VDDIO]&#10;Result: GOOD · CAP_REV&#10;cap vrs: 0.293 / 0.355 / 0.591 / 0.594 / 0.592 V</title>
 </g>
 <g>
-  <rect x="83.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="92.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">28</text>
+  <rect x="326.6" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="362.4" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">28</text>
   <title>DP 28 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 50.1 kΩ / 6.0 kΩ / 879 Ω&#10;vr: 0.500 / 0.589 / 0.861 V</title>
 </g>
 <g>
-  <rect x="103.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="112.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">29</text>
+  <rect x="410.8" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="446.5" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">29</text>
   <title>DP 29 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.1 kΩ / 6.2 kΩ / 865 Ω&#10;vr: 0.526 / 0.605 / 0.851 V</title>
 </g>
 <g>
-  <rect x="123.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="132.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">30</text>
+  <rect x="494.9" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="530.6" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">30</text>
   <title>DP 30 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 870 Ω&#10;vr: 0.533 / 0.605 / 0.854 V</title>
 </g>
 <g>
-  <rect x="143.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="152.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">31</text>
+  <rect x="579.0" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="614.8" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">31</text>
   <title>DP 31 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.6 kΩ / 6.1 kΩ / 884 Ω&#10;vr: 0.530 / 0.604 / 0.865 V</title>
 </g>
 <g>
-  <rect x="163.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="172.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">32</text>
+  <rect x="663.1" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="698.9" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">32</text>
   <title>DP 32 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.1 kΩ / 864 Ω&#10;vr: 0.532 / 0.604 / 0.850 V</title>
 </g>
 <g>
-  <rect x="183.9" y="398.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="192.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">33</text>
+  <rect x="747.2" y="1965.3" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="783.0" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">33</text>
   <title>DP 33 [NC]</title>
 </g>
 <g>
-  <rect x="203.9" y="398.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="212.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">34</text>
+  <rect x="831.4" y="1965.3" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="867.1" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">34</text>
   <title>DP 34 [NC]</title>
 </g>
 <g>
-  <rect x="223.9" y="398.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="232.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">35</text>
+  <rect x="915.5" y="1965.3" width="71.5" height="71.5" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="951.2" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#fff" pointer-events="none">35</text>
   <title>DP 35 [VDDIO]&#10;Result: GOOD · CAP_REV&#10;cap vrs: 0.304 / 0.363 / 0.596 / 0.600 / 0.602 V</title>
 </g>
 <g>
-  <rect x="243.9" y="398.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="252.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">36</text>
+  <rect x="999.6" y="1965.3" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1035.4" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">36</text>
   <title>DP 36 [GND]&#10;(untested)</title>
 </g>
 <g>
-  <rect x="263.9" y="398.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="272.9" y="409.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">37</text>
+  <rect x="1083.7" y="1965.3" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1119.5" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">37</text>
   <title>DP 37 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="376.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="387.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">38</text>
+  <rect x="1167.9" y="1965.3" width="71.5" height="71.5" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1203.6" y="2012.5" text-anchor="middle" font-family="monospace" font-size="30.0" fill="#000" pointer-events="none">38</text>
   <title>DP 38 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="356.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="367.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">39</text>
+  <rect x="1484.0" y="1649.2" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1695.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">39</text>
   <title>DP 39 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 49.7 kΩ / 5.9 kΩ / 873 Ω&#10;vr: 0.497 / 0.588 / 0.857 V</title>
 </g>
 <g>
-  <rect x="313.9" y="336.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="347.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">40</text>
+  <rect x="1484.0" y="1566.7" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1612.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">40</text>
   <title>DP 40 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.5 kΩ / 6.1 kΩ / 876 Ω&#10;vr: 0.529 / 0.604 / 0.859 V</title>
 </g>
 <g>
-  <rect x="313.9" y="316.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="327.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">41</text>
+  <rect x="1484.0" y="1484.1" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1530.4" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">41</text>
   <title>DP 41 [VDD_CORE]&#10;Result: GOOD · CAP_REV&#10;cap vrs: 0.297 / 0.359 / 0.600 / 0.604 / 0.605 V</title>
 </g>
 <g>
-  <rect x="313.9" y="296.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="307.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">42</text>
+  <rect x="1484.0" y="1401.6" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1447.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">42</text>
   <title>DP 42 [GND]&#10;(untested)</title>
 </g>
 <g>
-  <rect x="313.9" y="276.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="287.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">43</text>
+  <rect x="1484.0" y="1319.1" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1365.3" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">43</text>
   <title>DP 43 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="256.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="267.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">44</text>
+  <rect x="1484.0" y="1236.5" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1282.8" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">44</text>
   <title>DP 44 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="236.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="247.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">45</text>
+  <rect x="1484.0" y="1154.0" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1200.3" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">45</text>
   <title>DP 45 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 50.2 kΩ / 5.9 kΩ / 853 Ω&#10;vr: 0.502 / 0.587 / 0.842 V</title>
 </g>
 <g>
-  <rect x="313.9" y="216.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="227.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">46</text>
+  <rect x="1484.0" y="1071.5" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1117.7" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">46</text>
   <title>DP 46 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.7 kΩ / 6.1 kΩ / 864 Ω&#10;vr: 0.531 / 0.604 / 0.850 V</title>
 </g>
 <g>
-  <rect x="313.9" y="196.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="207.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">47</text>
+  <rect x="1484.0" y="988.9" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="1035.2" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">47</text>
   <title>DP 47 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.1 kΩ / 6.2 kΩ / 866 Ω&#10;vr: 0.534 / 0.606 / 0.852 V</title>
 </g>
 <g>
-  <rect x="313.9" y="176.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="187.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">48</text>
+  <rect x="1484.0" y="906.4" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="952.7" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">48</text>
   <title>DP 48 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.9 kΩ / 6.2 kΩ / 875 Ω&#10;vr: 0.533 / 0.606 / 0.858 V</title>
 </g>
 <g>
-  <rect x="313.9" y="156.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="167.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">49</text>
+  <rect x="1484.0" y="823.9" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="870.1" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">49</text>
   <title>DP 49 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 53.8 kΩ / 6.2 kΩ / 870 Ω&#10;vr: 0.532 / 0.605 / 0.854 V</title>
 </g>
 <g>
-  <rect x="313.9" y="136.0" width="18" height="18" rx="2" fill="#4CAF50" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="147.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">50</text>
+  <rect x="1484.0" y="741.3" width="70.2" height="70.2" fill="#3D9641" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="787.6" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#fff" pointer-events="none">50</text>
   <title>DP 50 [IO]&#10;Result: GOOD · STD_REV&#10;rr: 54.0 kΩ / 6.2 kΩ / 861 Ω&#10;vr: 0.533 / 0.605 / 0.848 V</title>
 </g>
 <g>
-  <rect x="313.9" y="116.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="127.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">51</text>
+  <rect x="1484.0" y="658.8" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="705.1" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">51</text>
   <title>DP 51 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="96.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="107.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">52</text>
+  <rect x="1484.0" y="576.2" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="622.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">52</text>
   <title>DP 52 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="76.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="87.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">53</text>
+  <rect x="1484.0" y="493.7" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="540.0" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">53</text>
   <title>DP 53 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="56.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="67.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">54</text>
+  <rect x="1484.0" y="411.2" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="457.5" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">54</text>
   <title>DP 54 [NC]</title>
 </g>
 <g>
-  <rect x="313.9" y="36.0" width="18" height="18" rx="2" fill="#616161" stroke="#222" stroke-width="0.8"/>
-  <text x="322.9" y="47.6" text-anchor="middle" font-family="monospace" font-size="6.8" fill="#fff" pointer-events="none">55</text>
+  <rect x="1484.0" y="328.6" width="70.2" height="70.2" fill="#9aa0a6" fill-opacity="0.9" stroke="#222" stroke-width="1"/>
+  <text x="1519.1" y="374.9" text-anchor="middle" font-family="monospace" font-size="29.5" fill="#000" pointer-events="none">55</text>
   <title>DP 55 [NC]</title>
 </g>
 </svg>
-    <div class="legend"><div class="legend-item"><div class="legend-swatch" style="background:#4CAF50"></div><span>GOOD</span></div>
-<div class="legend-item"><div class="legend-swatch" style="background:#e2554f"></div><span>SHORT TO GND</span></div>
-<div class="legend-item"><div class="legend-swatch" style="background:#c06010"></div><span>OPEN</span></div>
+    <div class="legend"><div class="legend-item"><div class="legend-swatch" style="background:#3D9641"></div><span>GOOD</span></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#d93025"></div><span>SHORT TO GND / OPEN</span></div>
 <div class="legend-item"><div class="legend-swatch" style="background:#9a8800"></div><span>SHORT TO NEIGHBOR</span></div>
-<div class="legend-item"><div class="legend-swatch" style="background:#616161"></div><span>GND / NC / Untested</span></div></div>
+<div class="legend-item"><div class="legend-swatch" style="background:#9aa0a6"></div><span>GND / NC / Untested</span></div></div>
   </div>
   <div>
 <div class="section-label" style="color:var(--tx-muted);font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;">IO pads — 37</div><div class="tbl-wrap"><table>
