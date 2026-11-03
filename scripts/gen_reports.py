@@ -140,6 +140,7 @@ PANEL_SHAPE = {
     # New-format full die names
     'AF02': 'shape_1x1',
     'BRWN': 'shape_1x1',
+    'BTAP': 'shape_1x1',       # pinout verified against assets/BTAP.json nets
     'ISHI': 'shape_1x1',
     'JKU1': 'shape_1x1',       # pad map 2 (1x1 Mezzanine70 v2) — same pinout as shape_1x1
     'GD04': 'shape_1x0p5',
